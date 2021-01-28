@@ -26,9 +26,9 @@ data IsRelation r a = IsRelation
 {-@
 data Relation r a = Relation
   { isRelation :: IsRelation r a,
-    x :: a,
-    y :: a,
-    witness :: {_:r a | decide isRelation (x, y)}
+    relation_x :: a,
+    relation_y :: a,
+    relation_witness :: {_:r a | decide isRelation (relation_x, relation_y)}
    }
 @-}
 data Relation r a = Relation
@@ -43,6 +43,11 @@ data Relation r a = Relation
 type Relates r a X Y =
   {r:Relation r a | X = relation_x r && Y = relation_y r}
 @-}
+type Relates r a = Relation r a
+
+{-
+# Properties
+-}
 
 -- Property. A relation is reflexive i.e. R x x.
 {-@
@@ -50,7 +55,7 @@ type IsReflexive r a =
   x:a ->
   Relates r a {x} {x}
 @-}
-type IsReflexive r a = a -> r a
+type IsReflexive r a = a -> Relation r a
 
 -- Property. A relation is symmetric i.e. R x y => R y x.
 {-@
@@ -59,7 +64,7 @@ type IsSymmetric r a =
   Relates r a {x} {y} ->
   Relates r a {y} {x}
 @-}
-type IsSymmetric r a = a -> a -> r a -> r a
+type IsSymmetric r a = a -> a -> Relation r a -> Relation r a
 
 -- Property. A relation is transitive i.e. R x y => R y z => R x z.
 {-@
@@ -69,4 +74,5 @@ type IsTransitive r a =
   Relates r a {y} {z} ->
   Relates r a {x} {z}
 @-}
-type IsTransitive r a = a -> a -> a -> r a -> r a -> r a
+type IsTransitive r a =
+  a -> a -> a -> Relation r a -> Relation r a -> Relation r a

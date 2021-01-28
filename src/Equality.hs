@@ -14,3 +14,29 @@ data IsEquality eq a = IsEquality
     isSymmetric :: IsSymmetric eq a,
     isTransitive :: IsTransitive eq a
   }
+
+{-
+# SMT Equality
+
+A proxy for Haskell's `Eq` class, used by Liquid Haskell's SMT solver to
+represent equalities.
+-}
+
+data SMTEquality a = SMTEquality
+  {eq_smt :: a -> a -> Bool}
+
+{-@ assume isRelation_SMTEquality_Int :: IsRelation SMTEquality Int @-}
+isRelation_SMTEquality_Int :: IsRelation SMTEquality Int
+isRelation_SMTEquality_Int = undefined
+
+{-@ assume isReflexive_SMTEquality_Int :: IsReflexive SMTEquality Int @-}
+isReflexive_SMTEquality_Int :: IsReflexive SMTEquality Int
+isReflexive_SMTEquality_Int = undefined
+
+{-@ assume isSymmetric_SMTEquality_Int :: IsSymmetric SMTEquality Int @-}
+isSymmetric_SMTEquality_Int :: IsSymmetric SMTEquality Int
+isSymmetric_SMTEquality_Int = undefined
+
+{-@ assume isTransitive_SMTEquality_Int :: IsTransitive SMTEquality Int @-}
+isTransitive_SMTEquality_Int :: IsTransitive SMTEquality Int
+isTransitive_SMTEquality_Int = undefined
