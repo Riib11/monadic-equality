@@ -28,6 +28,8 @@ dependencies:
 
 library:
   source-dirs: src
+  default-extensions:
+    - GADTs
   ghc-options:
     - -Wall
     - -Wno-name-shadowing

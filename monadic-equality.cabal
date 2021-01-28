@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 16bcb33213ba0597698b0e3349c4486a492794319cb6937cfaef426597bf2944
+-- hash: 178eaf316d511da60a542d0ec51fba464340d7ad95ac5f34fcbf43902f9f58d2
 
 name:           monadic-equality
 version:        0.1.0.0
@@ -33,6 +33,7 @@ library
       Paths_monadic_equality
   hs-source-dirs:
       src
+  default-extensions: GADTs
   ghc-options: -Wall -Wno-name-shadowing -Wno-unused-imports -Wno-unused-matches -Wno-unused-local-binds -fplugin=LiquidHaskell -fplugin-opt=LiquidHaskell:--reflection -fplugin-opt=LiquidHaskell:--ple-local -fplugin-opt=LiquidHaskell:--diff -fplugin-opt=LiquidHaskell:--short-names -fplugin-opt=LiquidHaskell:--prune-unsorted
   build-depends:
       liquid-base

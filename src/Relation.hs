@@ -1,54 +1,72 @@
 module Relation where
 
 {-
-Relation
+# Relation
 
-A (decidable) relation is represented by:
+A relation is represented by:
 - a type `r :: * -> *` which is the type of instances of the relation,
 - a function `R :: a -> a -> Bool` which decides the relation.
 -}
 
 {-@
-data Relation r a = Relation
+data IsRelation r a = IsRelation
   { decide :: (a, a) -> Bool,
-    toWitness :: x:(a, a) -> {rx:() | decide x} -> r a,
+    toWitness :: {x:(a, a) | decide x} -> r a,
     fromWitness :: witness:r a -> {x:(a, a) | decide x},
-    decide_correct :: x:a -> {rx:() | decide x} -> {_:() | x = fromWitness (toWitness x rx)}
+    decide_correct :: {x:(a, a) | decide x} -> {x = fromWitness (toWitness x)}
   }
 @-}
-data Relation r a = Relation
+data IsRelation r a = IsRelation
   { decide :: (a, a) -> Bool,
-    toWitness :: (a, a) -> () -> r a,
+    toWitness :: (a, a) -> r a,
     fromWitness :: r a -> (a, a),
-    decide_correct :: a -> () -> ()
+    decide_correct :: (a, a) -> ()
   }
 
--- Type. Abbreviation of "r a is inhabited and R x y"
-{-@ type Relates r a R X Y = {_:r a | R X Y} @-}
+{-@
+data Relation r a = Relation
+  { isRelation :: IsRelation r a,
+    x :: a,
+    y :: a,
+    witness :: {_:r a | decide isRelation (x, y)}
+   }
+@-}
+data Relation r a = Relation
+  { isRelation :: IsRelation r a,
+    relation_x :: a,
+    relation_y :: a,
+    relation_witness :: r a
+  }
+
+-- Type. Abbreviation of "X and Y are related by r".
+{-@
+type Relates r a X Y =
+  {r:Relation r a | X = relation_x r && Y = relation_y r}
+@-}
 
 -- Property. A relation is reflexive i.e. R x x.
 {-@
-type IsReflexive r a R =
+type IsReflexive r a =
   x:a ->
-  Relates r a {R} {x} {x}
+  Relates r a {x} {x}
 @-}
 type IsReflexive r a = a -> r a
 
 -- Property. A relation is symmetric i.e. R x y => R y x.
 {-@
-type IsSymmetric r a R =
+type IsSymmetric r a =
   x:a -> y:a ->
-  Relates r a {R} {x} {y} ->
-  Relates r a {R} {y} {x}
+  Relates r a {x} {y} ->
+  Relates r a {y} {x}
 @-}
 type IsSymmetric r a = a -> a -> r a -> r a
 
 -- Property. A relation is transitive i.e. R x y => R y z => R x z.
 {-@
-type IsTransitive r a R =
+type IsTransitive r a =
   x:a -> y:a -> z:a ->
-  Relates r a {R} {x} {y} ->
-  Relates r a {R} {y} {z} ->
-  Relates r a {R} {x} {z}
+  Relates r a {x} {y} ->
+  Relates r a {y} {z} ->
+  Relates r a {x} {z}
 @-}
 type IsTransitive r a = a -> a -> a -> r a -> r a -> r a

@@ -3,21 +3,14 @@ module Equality where
 import Relation
 
 {-
-Equality
+# Equality
+
+An equality relation is a relation that is reflexive, symmetric, and transitive.
 -}
 
---
-{-@
-data IsEquality e a = IsEquality
-  { eq :: a -> a -> Bool,
-    isReflexive :: IsReflexive e a {eq},
-    isSymmetric :: IsSymmetric e a {eq},
-    isTransitive :: IsTransitive e a {eq}
-  }
-@-}
-data IsEquality e a = IsEquality
-  { eq :: a -> a -> Bool,
-    isReflexive :: IsReflexive e a,
-    isSymmetric :: IsSymmetric e a,
-    isTransitive :: IsTransitive e a
+data IsEquality eq a = IsEquality
+  { isRelation :: IsRelation eq a,
+    isReflexive :: IsReflexive eq a,
+    isSymmetric :: IsSymmetric eq a,
+    isTransitive :: IsTransitive eq a
   }
