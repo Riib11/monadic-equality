@@ -1,9 +1,9 @@
 module Relation where
 
 {-
-Decidable Relation
+Relation
 
-A decidable relation is represented by:
+A (decidable) relation is represented by:
 - a type `r :: * -> *` which is the type of instances of the relation,
 - a function `R :: a -> a -> Bool` which decides the relation.
 -}
