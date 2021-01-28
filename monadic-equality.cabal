@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 6ecf299277dabe86a23c1b88bf86a831b061267df73cf22a62a6cad64130e64c
+-- hash: 84deae9dee7ec9e880ea211080fb7372ef5f1bb6a23969fcae5025ae93f48136
 
 name:           monadic-equality
 version:        0.1.0.0
@@ -32,31 +32,8 @@ library
       Paths_monadic_equality
   hs-source-dirs:
       src
+  ghc-options: -Wall -Wno-name-shadowing -Wno-unused-imports -Wno-unused-matches -Wno-unused-local-binds -fplugin=LiquidHaskell -fplugin-opt=LiquidHaskell:--reflection -fplugin-opt=LiquidHaskell:--ple-local -fplugin-opt=LiquidHaskell:--diff -fplugin-opt=LiquidHaskell:--short-names -fplugin-opt=LiquidHaskell:--prune-unsorted
   build-depends:
-      base >=4.7 && <5
-  default-language: Haskell2010
-
-executable monadic-equality-exe
-  main-is: Main.hs
-  other-modules:
-      Paths_monadic_equality
-  hs-source-dirs:
-      app
-  ghc-options: -threaded -rtsopts -with-rtsopts=-N
-  build-depends:
-      base >=4.7 && <5
-    , monadic-equality
-  default-language: Haskell2010
-
-test-suite monadic-equality-test
-  type: exitcode-stdio-1.0
-  main-is: Spec.hs
-  other-modules:
-      Paths_monadic_equality
-  hs-source-dirs:
-      test
-  ghc-options: -threaded -rtsopts -with-rtsopts=-N
-  build-depends:
-      base >=4.7 && <5
-    , monadic-equality
+      liquid-base
+    , liquidhaskell ==0.8.10.2
   default-language: Haskell2010
