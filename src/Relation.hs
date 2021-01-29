@@ -34,13 +34,8 @@ data IsRelation r a = IsRelation
   { decide :: (a, a) -> Bool,
     toWitness :: (a, a) -> r a,
     fromWitness :: r a -> (a, a),
-    inverseToFromWitness :: ((a, a) -> (), r a -> ())
+    inversesToFromWitness :: ((a, a) -> (), r a -> ())
   }
-
--- fromToWitness :: {x:(a, a) | decide x} -> {_:() | x = fromWitness (toWitness x)},
--- toFromWitness :: w:r a -> {_:() | w = toWitness (fromWitness w)}
--- fromToWitness :: (a, a) -> (),
--- toFromWitness :: r a -> ()
 
 {-@
 data Relation r a = Relation
