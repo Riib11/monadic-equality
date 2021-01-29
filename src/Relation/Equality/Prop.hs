@@ -7,11 +7,17 @@ import Relation.Equality.SMT
 {-
 # Propositional Equality
 
+Propositional equality has three introduction rules:
+- SMT equality of terms entails the propositional equality of the terms,
+- extensional propositional equality of functions (i.e. the two have
+  propositionally equal outputs given identical inputs) entails the
+  propositional equality of the functions,
+- contextual propositional equality of terms (i.e. renaming free names in the
+  terms can yield propositional equality) entails the propositional equality of
+  the terms.
 -}
 
 {-@ measure eqProp :: (a, a) -> Bool @-}
-eqProp :: (a, a) -> Bool
-eqProp = \_ -> True
 
 {-@
 data EqProp where
@@ -34,47 +40,27 @@ data EqProp :: * -> * where
   EqProp_Ext :: (a -> b) -> (a -> b) -> (a -> EqProp b) -> EqProp (a -> b)
   EqProp_Ctx :: a -> a -> EqProp a -> (a -> b) -> EqProp b
 
+-- Instance. `EqProp` is a relation on all types `a`.
+{-@ assume isRelation_EqProp :: IsRelation EqProp a @-}
 isRelation_EqProp :: IsRelation EqProp a
-isRelation_EqProp =
-  IsRelation
-    { decide = decide_EqProp,
-      toWitness = toWitness_EqProp,
-      fromWitness = fromWitness_EqProp,
-      inversesToFromWitness = inversesToFromWitness_EqProp
-    }
+isRelation_EqProp = undefined
 
-{-@ reflect decide_EqProp @-}
-decide_EqProp :: (a, a) -> Bool
-decide_EqProp = eqProp
+-- Property. `EqProp` is reflexive.
+{-@ assume isReflexive_EqProp :: IsReflexive EqProp a @-}
+isReflexive_EqProp :: IsReflexive EqProp a
+isReflexive_EqProp = undefined
 
-{-@ reflect toWitness_EqProp @-}
-toWitness_EqProp :: (a, a) -> EqProp a
-toWitness_EqProp = undefined
+-- Property. `EqProp` is symmetric.
+{-@ assume isSymmetric_EqProp :: IsSymmetric EqProp a @-}
+isSymmetric_EqProp :: IsSymmetric EqProp a
+isSymmetric_EqProp = undefined
 
-{-@ reflect fromWitness_EqProp @-}
-fromWitness_EqProp :: EqProp a -> (a, a)
-fromWitness_EqProp = undefined
+-- Property. `EqProp` is transitive.
+{-@ assume isTransitive_EqProp :: IsTransitive EqProp a @-}
+isTransitive_EqProp :: IsTransitive EqProp a
+isTransitive_EqProp = undefined
 
-{-@ reflect inversesToFromWitness_EqProp @-}
-inversesToFromWitness_EqProp :: ((a, a) -> (), r a -> ())
-inversesToFromWitness_EqProp = undefined
-
--- isReflexive_EqProp :: IsReflexive EqProp a
--- isReflexive_EqProp = IsReflexive {}
-
--- isSymmetric_EqProp :: IsSymmetric EqProp a
--- isSymmetric_EqProp = IsSymmetric {}
-
--- isTransitive_EqProp :: IsTransitive EqProp a
--- isTransitive_EqProp = IsTransitive {}
-
--- -- Instance. EqProp is an equality on all types `a`.
--- {-@ reflect isEquality_EqProp @-}
--- isEquality_EqProp :: IsEquality EqProp a
--- isEquality_EqProp =
---   IsEquality
---     { equ_isRelation = _,
---       equ_isReflexive = _,
---       equ_isSymmetric = _,
---       equ_isTransitive = _
---     }
+-- Instance. EqProp is an equality on all types `a`.
+{-@ assume isEquality_EqProp :: IsEquality EqProp a @-}
+isEquality_EqProp :: IsEquality EqProp a
+isEquality_EqProp = undefined
