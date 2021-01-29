@@ -30,6 +30,7 @@ library:
   source-dirs: src
   default-extensions:
     - GADTs
+    - KindSignatures
   ghc-options:
     - -Wall
     - -Wno-name-shadowing
