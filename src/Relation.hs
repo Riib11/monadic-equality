@@ -1,5 +1,7 @@
 module Relation where
 
+import Function
+
 {-
 # Relation
 
@@ -23,16 +25,22 @@ such that
 data IsRelation r a = IsRelation
   { decide :: (a, a) -> Bool,
     toWitness :: {x:(a, a) | decide x} -> r a,
-    fromWitness :: witness:r a -> {x:(a, a) | decide x},
-    decide_correct :: {x:(a, a) | decide x} -> {_:() | x = fromWitness (toWitness x)}
+    fromWitness :: r a -> {x:(a, a) | decide x},
+    inversesToFromWitness ::
+      Inverses {x:(a, a) | decide x} (r a) toWitness fromWitness
   }
 @-}
 data IsRelation r a = IsRelation
   { decide :: (a, a) -> Bool,
     toWitness :: (a, a) -> r a,
     fromWitness :: r a -> (a, a),
-    decide_correct :: (a, a) -> ()
+    inverseToFromWitness :: ((a, a) -> (), r a -> ())
   }
+
+-- fromToWitness :: {x:(a, a) | decide x} -> {_:() | x = fromWitness (toWitness x)},
+-- toFromWitness :: w:r a -> {_:() | w = toWitness (fromWitness w)}
+-- fromToWitness :: (a, a) -> (),
+-- toFromWitness :: r a -> ()
 
 {-@
 data Relation r a = Relation
