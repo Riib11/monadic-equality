@@ -27,7 +27,7 @@ data IsRelation r a = IsRelation
     toWitness :: {x:(a, a) | decide x} -> r a,
     fromWitness :: r a -> {x:(a, a) | decide x},
     inversesToFromWitness ::
-      Inverses {x:(a, a) | decide x} (r a) toWitness fromWitness
+      Inverses {x:(a, a) | decide x} (r a) {toWitness} {fromWitness}
   }
 @-}
 data IsRelation r a = IsRelation
