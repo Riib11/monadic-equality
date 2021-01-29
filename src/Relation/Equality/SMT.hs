@@ -1,5 +1,6 @@
 module Relation.Equality.SMT where
 
+import Relation
 import Relation.Equality
 
 {-
@@ -9,21 +10,21 @@ A proxy for Haskell's `Eq` class, used by Liquid Haskell's SMT solver to
 represent equalities.
 -}
 
-data SMTEquality a = SMTEquality
-  {eqSMT :: a -> a -> Bool}
+data EqSMT a = EqSMT
+  {eqSMT :: (a, a) -> Bool}
 
-eqSMT_Int :: SMTEquality Int
-eqSMT_Int = SMTEquality {eqSMT = (==)}
+eqSMT_Int :: EqSMT Int
+eqSMT_Int = EqSMT {eqSMT = \(x, y) -> x == y}
 
-eqSMT_Bool :: SMTEquality Bool
-eqSMT_Bool = SMTEquality {eqSMT = (==)}
+eqSMT_Bool :: EqSMT Bool
+eqSMT_Bool = EqSMT {eqSMT = \(x, y) -> x == y}
 
 -- Instances.
 
-{-@ assume isSMTEquality_Bool :: IsEquality SMTEquality Bool @-}
-isSMTEquality_Bool :: IsEquality SMTEquality Bool
-isSMTEquality_Bool = undefined
+{-@ assume isEquality_EqSMT_Bool :: IsEquality EqSMT Bool @-}
+isEquality_EqSMT_Bool :: IsEquality EqSMT Bool
+isEquality_EqSMT_Bool = undefined
 
-{-@ assume isSMTEquality_Int :: IsEquality SMTEquality Int @-}
-isSMTEquality_Int :: IsEquality SMTEquality Int
-isSMTEquality_Int = undefined
+{-@ assume isEquality_EqSMT_Int :: IsEquality EqSMT Int @-}
+isEquality_EqSMT_Int :: IsEquality EqSMT Int
+isEquality_EqSMT_Int = undefined
