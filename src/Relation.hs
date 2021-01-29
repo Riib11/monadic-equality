@@ -51,10 +51,8 @@ data Relation r a = Relation
 
 -- Type. Abbreviation of "X and Y are related by r".
 {-@
-type Relates r a X Y =
-  {rel:Relation r a | X = rx rel && Y = ry rel}
+type Relates r a X Y = {rel:Relation r a | X = rx rel && Y = ry rel}
 @-}
--- type Relates r a = Relation r a
 
 {-
 # Properties
@@ -66,7 +64,6 @@ type IsReflexive r a =
   x:a ->
   Relates r a {x} {x}
 @-}
--- {rel:Relation r a | x = rx rel && x = ry rel}
 type IsReflexive r a = a -> Relation r a
 
 -- Property. A relation is symmetric i.e. R x y => R y x.
@@ -76,7 +73,7 @@ type IsSymmetric r a =
   Relates r a {x} {y} ->
   Relates r a {y} {x}
 @-}
--- type IsSymmetric r a = a -> a -> Relation r a -> Relation r a
+type IsSymmetric r a = a -> a -> Relation r a -> Relation r a
 
 -- Property. A relation is transitive i.e. R x y => R y z => R x z.
 {-@
@@ -86,5 +83,5 @@ type IsTransitive r a =
   Relates r a {y} {z} ->
   Relates r a {x} {z}
 @-}
--- type IsTransitive r a =
---   a -> a -> a -> Relation r a -> Relation r a -> Relation r a
+type IsTransitive r a =
+  a -> a -> a -> Relation r a -> Relation r a -> Relation r a
