@@ -10,28 +10,20 @@ represent equalities.
 -}
 
 data SMTEquality a = SMTEquality
-  {eq_smt :: a -> a -> Bool}
+  {eqSMT :: a -> a -> Bool}
 
--- Instance. SMTEquality Int
+eqSMT_Int :: SMTEquality Int
+eqSMT_Int = SMTEquality {eqSMT = (==)}
 
--- {-@ assume isSMTEquality_Int :: IsEquality SMTEquality Int @-}
--- isSMTEquality_Int :: IsEquality SMTEquality Int
--- isSMTEquality_Int = undefined
+eqSMT_Bool :: SMTEquality Bool
+eqSMT_Bool = SMTEquality {eqSMT = (==)}
 
--- -- {-@ assume isRelation :: IsRelation SMTEquality Int @-}
--- -- isRelation :: IsRelation SMTEquality Int
--- -- isRelation = undefined
+-- Instances.
 
--- -- {-@ assume isReflexive :: IsReflexive SMTEquality Int @-}
--- -- isReflexive :: IsReflexive SMTEquality Int
--- -- isReflexive = undefined
+{-@ assume isSMTEquality_Bool :: IsEquality SMTEquality Bool @-}
+isSMTEquality_Bool :: IsEquality SMTEquality Bool
+isSMTEquality_Bool = undefined
 
--- -- {-@ assume isSymmetric :: IsSymmetric SMTEquality Int @-}
--- -- isSymmetric :: IsSymmetric SMTEquality Int
--- -- isSymmetric = undefined
-
--- -- {-@ assume isTransitive :: IsTransitive SMTEquality Int @-}
--- -- isTransitive :: IsTransitive SMTEquality Int
--- -- isTransitive = undefined
-
--- -- Instance. SMTEquality Bool
+{-@ assume isSMTEquality_Int :: IsEquality SMTEquality Int @-}
+isSMTEquality_Int :: IsEquality SMTEquality Int
+isSMTEquality_Int = undefined
