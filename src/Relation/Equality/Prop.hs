@@ -2,7 +2,6 @@ module Relation.Equality.Prop where
 
 import Relation
 import Relation.Equality
-import Relation.Equality.SMT
 
 {-
 # Propositional Equality
