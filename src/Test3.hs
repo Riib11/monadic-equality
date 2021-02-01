@@ -89,6 +89,7 @@ equality_reflexive_base_aux :: forall a. EqualityAxiomatic a -> a -> EqualityPro
 equality_reflexive_base_aux iEqualityAxiomatic x =
   Axiomatic iEqualityAxiomatic x x (eqax_reflexivity iEqualityAxiomatic x)
 
+-- inductive step
 {-@
 equality_reflexivity_induction ::
   Reflexivity b -> Reflexivity (a -> b)
