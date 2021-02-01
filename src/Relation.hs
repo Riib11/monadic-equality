@@ -1,90 +1,118 @@
 module Relation where
 
-import Function
+import Proof
+
+{-@
+data IsReflexive a <r :: a -> a -> Bool> =
+  IsReflexive (x:a -> {_:Proof | r x x})
+@-}
+data IsReflexive a = IsReflexive (a -> Proof)
+
+{-@
+data IsSymmetric a <r :: a -> a -> Bool> =
+  IsSymmetric (x:a -> y:a -> {_:Proof | r x y => r y x})
+@-}
+data IsSymmetric a = IsSymmetric (a -> a -> Proof)
+
+{-@
+data IsTransitive a <r :: a -> a -> Bool> =
+  IsTransitive (x:a -> y:a -> z:a -> {_:Proof | (r x y && r y z) => r x z})
+@-}
+data IsTransitive a = IsTransitive (a -> a -> a -> Proof)
 
 {-
-# Relation
-
-A relation is represented by
-- a type `r :: * -> *` which is the type of instances of the relation,
-- a function `decide :: a -> a -> Bool` which decides the relation,
-- a function `toWitness :: {x:(a, a) | decide x} -> r a` that, given a pair of
-  `a`-terms `x` that are `decide`d to be related, yields a corresponding
-  witness `r a`-instance of the relation,
-- a function `fromWitness :: witness:r a -> {x:(a, a) | decide x}` that, given
-  an instance of the `r a` relation, yields a pair of `a`-terms `x` that
-  are `decide`d to be related,
-such that
-- if a pair of `a`-terms `x` is `decide`d to be related, then `x` is the
-  pair of `a`-terms yielded via `fromWitness` of the witness `toWitness x`.
--
-
+OLD
 -}
 
-{-@
-data IsRelation r a = IsRelation
-  { decide :: (a, a) -> Bool,
-    toWitness :: {x:(a, a) | decide x} -> r a,
-    fromWitness :: r a -> {x:(a, a) | decide x},
-    inversesToFromWitness ::
-      Inverses {x:(a, a) | decide x} (r a) {toWitness} {fromWitness}
-  }
-@-}
-data IsRelation r a = IsRelation
-  { decide :: (a, a) -> Bool,
-    toWitness :: (a, a) -> r a,
-    fromWitness :: r a -> (a, a),
-    inversesToFromWitness :: ((a, a) -> (), r a -> ())
-  }
+-- {-@
+-- type IsReflexive a R = x:a -> {_:Proof | R x x}
+-- @-}
+-- type IsReflexive a = a -> Proof
 
-{-@
-data Relation r a = Relation
-  { isRelation :: IsRelation r a,
-    rx :: a,
-    ry :: a,
-    rw :: {_:r a | decide isRelation (rx, ry)}
-   }
-@-}
-data Relation r a = Relation
-  { isRelation :: IsRelation r a,
-    rx :: a,
-    ry :: a,
-    rw :: r a
-  }
+-- {-@
+-- type IsSymmetric a R = x:a -> y:a -> {_:Proof | R x y => R y x}
+-- @-}
+-- type IsSymmetric a = a -> a -> Proof
 
--- Type. Abbreviation of "X and Y are related by r".
-{-@
-type Relates r a X Y = {rel:Relation r a | X = rx rel && Y = ry rel}
-@-}
+-- {-@
+-- type IsTransitive a R = x:a -> y:a -> z:a -> {_:Proof | R x y && R y z => R x z}
+-- @-}
+-- type IsTransitive a = a -> a -> a -> Proof
 
 {-
-# Properties
+NEW
 -}
 
--- Property. A relation is reflexive i.e. R x x.
-{-@
-type IsReflexive r a =
-  x:a ->
-  Relates r a {x} {x}
-@-}
-type IsReflexive r a = a -> Relation r a
+{-
+TMP
+-}
 
--- Property. A relation is symmetric i.e. R x y => R y x.
-{-@
-type IsSymmetric r a =
-  x:a -> y:a ->
-  Relates r a {x} {y} ->
-  Relates r a {y} {x}
-@-}
-type IsSymmetric r a = a -> a -> Relation r a -> Relation r a
+-- -- {-@
+-- -- data IsReflexive a <r :: a -> a -> Bool> =
+-- --   IsReflexive { rx :: a, ry :: a, rp :: {_:Proof | r rx ry} }
+-- -- @-}
+-- -- data IsReflexive a = IsReflexive a a Proof
 
--- Property. A relation is transitive i.e. R x y => R y z => R x z.
-{-@
-type IsTransitive r a =
-  x:a -> y:a -> z:a ->
-  Relates r a {x} {y} ->
-  Relates r a {y} {z} ->
-  Relates r a {x} {z}
-@-}
-type IsTransitive r a =
-  a -> a -> a -> Relation r a -> Relation r a -> Relation r a
+-- {-@
+-- data PList a <p :: a -> Bool>
+--   = PNil
+--   | PCons { head :: {_:a | p a}, tail :: PList a <p> }
+-- @-}
+-- data PList a = PNil | PCons a (PList a)
+
+-- {-@
+--   data Map [mllen] k a <l :: root:k -> k -> Bool, r :: root:k -> k -> Bool>
+--       = Tip
+--       | Bin { mSz    :: Size
+--             , mKey   :: k
+--             , mValue :: a
+--             , mLeft  :: Map <l, r> (k <l mKey>) a
+--             , mRight :: Map <l, r> (k <r mKey>) a }
+--   @-}
+
+-- {-@ measure mllen @-}
+-- mllen :: Map k a -> Int
+-- {-@ mllen :: Map k a -> Nat @-}
+-- mllen Tip = 0
+-- mllen (Bin _ _ _ l r) = 1 + if (mllen l < mllen r) then mllen r else mllen l
+
+-- {-@ measure mlen :: (Map k a) -> Int
+--       mlen Tip = 0
+--       mlen (Bin s k v l r) = 1 + (mlen l) + (mlen r)
+--   @-}
+
+-- {-@ invariant {v:Map k a | (mlen v) >= 0}@-}
+
+-- {-@ type OMap k a = Map <{\root v -> v < root }, {\root v -> v > root}> k a @-}
+
+-- data Map k a
+--   = Tip
+--   | Bin Size k a (Map k a) (Map k a)
+
+-- type Size = Int
+
+-- -- {-@
+-- -- data Related a <r :: a -> a -> Bool> = Related
+-- --   { rx :: a,
+-- --     ry :: a,
+-- --     rxy :: {_:Proof | r rx ry}
+-- --   }
+-- -- @-}
+-- -- data Related a = Related
+-- --   { rx :: a,
+-- --     ry :: a,
+-- --     rxy :: Proof
+-- --   }
+
+-- -- {-@
+-- -- data IsReflexive a <r :: a -> a -> Bool> =
+-- --   IsReflexive { reflexivity :: x:a -> {_:Proof | Related r x x} }
+-- -- @-}
+-- -- data IsReflexive a = IsReflexive
+-- --   {reflexivity :: a -> Proof}
+
+-- -- {-@
+-- -- data IsReflexive a <r :: a -> a -> Bool> =
+-- --   IsReflexive (x:a -> {_:Proof | r x x})
+-- -- @-}
+-- -- data IsReflexive a = IsReflexive (a -> Proof)

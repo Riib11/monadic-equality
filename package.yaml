@@ -31,6 +31,8 @@ library:
   default-extensions:
     - GADTs
     - KindSignatures
+    - ExplicitForAll
+    - RankNTypes
   ghc-options:
     - -Wall
     - -Wno-name-shadowing
