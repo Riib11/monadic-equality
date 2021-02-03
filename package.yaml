@@ -33,6 +33,8 @@ library:
     - KindSignatures
     - ExplicitForAll
     - RankNTypes
+    - FlexibleInstances
+    - UndecidableInstances
   ghc-options:
     - -Wall
     - -Wno-name-shadowing
