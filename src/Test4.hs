@@ -1,5 +1,3 @@
-{-@ LIQUID "--ple-local" @-}
-
 module Test4 where
 
 {-
@@ -7,6 +5,20 @@ module Test4 where
 -}
 
 type Proof = ()
+
+toProof :: a -> Proof
+toProof _ = ()
+
+(&&&) :: Proof -> Proof -> Proof
+x &&& _ = x
+
+{-@ withProof :: x:a -> b -> {v:a | v = x} @-}
+withProof :: a -> b -> a
+withProof x _ = x
+
+{-@ impossible :: {v:a | false} -> b @-}
+impossible :: a -> b
+impossible _ = undefined
 
 trivial :: Proof
 trivial = ()
@@ -35,194 +47,223 @@ infixl 4 ?
 x ? _ = x
 {-# INLINE (?) #-}
 
-(&&&) :: Proof -> Proof -> Proof
-x &&& _ = x
-
-{-@ withProof :: x:a -> b -> {v:a | v = x} @-}
-withProof :: a -> b -> a
-withProof x _ = x
-
-{-@ impossible :: {v:a | false} -> b @-}
-impossible :: a -> b
-impossible _ = undefined
-
 {-@ measure prop :: a -> b           @-}
 {-@ type Prop E = {v:_ | prop v = E} @-}
 
-{-
-# Relation
--}
-
-{-@ type IsReflexive a R = x:a -> {_:Proof | R x x} @-}
-type IsReflexive a = a -> Proof
-
-{-@ type IsSymmetric a R = x:a -> y:a -> {_:Proof | R x y => R y x} @-}
-type IsSymmetric a = a -> a -> Proof
-
-{-@ type IsTransitive a R = x:a -> y:a -> z:a -> {_:Proof | R x y && R y z => R x z} @-}
-type IsTransitive a = a -> a -> a -> Proof
+(&) :: a -> (a -> b) -> b
+x & f = f x
 
 {-
 # Equality
 -}
 
 {-@
-data Equality a = Equality
-  { eq :: a -> a -> Bool,
-    eq_reflexivity :: IsReflexive a {eq},
-    eq_symmetry :: IsSymmetric a {eq},
-    eq_transitivity :: IsTransitive a {eq}
-  }
+measure eq :: a -> a -> Bool
 @-}
-data Equality a = Equality
-  { eq :: a -> a -> Bool,
-    eq_reflexivity :: IsReflexive a,
-    eq_symmetry :: IsSymmetric a,
-    eq_transitivity :: IsTransitive a
-  }
 
-{-
-# Base Equalities
--}
+{-@
+class Equality a where
+  eq_ :: x:a -> y:a -> {v:Bool | v <=> eq x y}
+  reflexivity :: x:a ->
+    {_:Proof | eq x x}
+  symmetry :: x:a -> y:a ->
+    {_:Proof | eq x y} ->
+    {_:Proof | eq y x}
+  transitivty :: x:a -> y:a -> z:a ->
+    {_:Proof | eq x y} ->
+    {_:Proof | eq y z} ->
+    {_:Proof | eq x z}
+@-}
+class Equality a where
+  eq_ :: a -> a -> Bool
+  reflexivity :: a -> Proof
+  symmetry :: a -> a -> Proof -> Proof
+  transitivty :: a -> a -> a -> Proof -> Proof -> Proof
 
-{-
-## Bool Equality
--}
+{-@
+assume congruency ::
+  x:a -> y:a -> c:(a -> b) ->
+  {_:Proof | eq x y} ->
+  {_:Proof | eq (c x) (c y)}
+@-}
+congruency :: Equality a => a -> a -> (a -> b) -> Proof -> Proof
+congruency _ _ _ _ = trivial
 
-{-@ reflect eqBool @-}
+{-@
+assume fromEquality :: x:a -> y:a -> {_:Proof | eq x y} -> {x = y}
+@-}
+fromEquality :: a -> a -> Proof -> Proof
+fromEquality _ _ _ = trivial
+
+{-@
+assume toEquality :: x:a -> y:a -> {_:Proof | x = y} -> {eq x y}
+@-}
+toEquality :: a -> a -> Proof -> Proof
+toEquality _ _ _ = trivial
+
+-- {-
+-- # Base Equalities
+-- -}
+
+-- {-
+-- ## Bool Equality
+-- -}
+
+{-@
+assume eqBool :: x:Bool -> y:Bool -> {v:Bool | v <=> eq x y}
+@-}
 eqBool :: Bool -> Bool -> Bool
 eqBool True True = True
 eqBool False False = True
 eqBool _ _ = False
 
-{-@ automatic-instances eq_reflexivityBool @-}
+{-@ automatic-instances reflexivityBool @-}
 {-@
-eq_reflexivityBool :: IsReflexive Bool {eqBool}
+reflexivityBool :: x:a -> {_:Proof | eq x x}
 @-}
-eq_reflexivityBool :: IsReflexive Bool
-eq_reflexivityBool _ = trivial
+reflexivityBool :: a -> Proof
+reflexivityBool x = toEquality x x e
+  where
+    {-@
+    e :: {x = x}
+    @-}
+    e :: Proof
+    e = trivial
 
-{-@ automatic-instances eq_symmetryBool @-}
+{-@ automatic-instances symmetryBool @-}
 {-@
-eq_symmetryBool :: IsSymmetric Bool {eqBool}
+symmetryBool ::
+  x:a -> y:a ->
+  {_:Proof | eq x y} ->
+  {_:Proof | eq y x}
 @-}
-eq_symmetryBool :: IsSymmetric Bool
-eq_symmetryBool _ _ = trivial
+symmetryBool :: a -> a -> Proof -> Proof
+symmetryBool x y exy = toEquality y x eyx
+  where
+    {-@
+    eyx :: {y = x}
+    @-}
+    eyx :: Proof
+    eyx = fromEquality x y exy
 
-{-@ automatic-instances eq_transitivityBool @-}
+{-@ automatic-instances transitivtyBool @-}
 {-@
-eq_transitivityBool :: IsTransitive Bool {eqBool}
+transitivtyBool ::
+  x:a -> y:a -> z:a ->
+  {_:Proof | eq x y} ->
+  {_:Proof | eq y z} ->
+  {_:Proof | eq x z}
 @-}
-eq_transitivityBool :: IsTransitive Bool
-eq_transitivityBool _ _ _ = trivial
+transitivtyBool :: a -> a -> a -> Proof -> Proof -> Proof
+transitivtyBool x y z exy eyz = toEquality x z exz
+  where
+    {-@
+    exz :: {x = z}
+    @-}
+    exz :: Proof
+    exz = fromEquality x y exy &&& fromEquality y z eyz
 
-{-@
-equalityBool :: Equality Bool
-@-}
-equalityBool :: Equality Bool
-equalityBool =
-  Equality
-    { eq = eqBool,
-      eq_reflexivity = eq_reflexivityBool,
-      eq_symmetry = eq_symmetryBool,
-      eq_transitivity = eq_transitivityBool
-    }
+instance Equality Bool where
+  eq_ = eqBool
+  reflexivity = reflexivityBool
+  symmetry = symmetryBool
+  transitivty = transitivtyBool
 
-{-
-## Natural Number Equality
--}
-
-{-@
-data Natural = Zero | Suc Natural
-@-}
-data Natural = Zero | Suc Natural
+-- {-
+-- ## Natural Number Equality
+-- -}
 
 -- {-@
--- measure sizeNatural :: Natural -> Int
+-- data Natural = Zero | Suc Natural
 -- @-}
--- sizeNatural :: Natural -> Int
--- sizeNatural Zero = 0
--- sizeNatural (Suc n) = 1 + sizeNatural n
+-- data Natural = Zero | Suc Natural
 
-{-@ reflect eqNatural @-}
-eqNatural :: Natural -> Natural -> Bool
-eqNatural Zero Zero = True
-eqNatural (Suc m) (Suc n) = eqNatural m n
-eqNatural _ _ = False
+-- -- {-@
+-- -- measure sizeNatural :: Natural -> Int
+-- -- @-}
+-- -- sizeNatural :: Natural -> Int
+-- -- sizeNatural Zero = 0
+-- -- sizeNatural (Suc n) = 1 + sizeNatural n
 
-{-@ automatic-instances neq_Zero_Suc @-}
-{-@
-neq_Zero_Suc :: n:Natural -> {not (eqNatural (Suc n) Zero)}
-@-}
-neq_Zero_Suc :: Natural -> Proof
-neq_Zero_Suc _ = trivial
+-- {-@ reflect eqNatural @-}
+-- eqNatural :: Natural -> Natural -> Bool
+-- eqNatural Zero Zero = True
+-- eqNatural (Suc m) (Suc n) = eqNatural m n
+-- eqNatural _ _ = False
 
--- {-@ automatic-instances eq_reflexivityNatural @-}
+-- {-@ automatic-instances neq_Zero_Suc @-}
 -- {-@
--- eq_reflexivityNatural :: x:Natural -> {_:Proof | eqNatural x x}
+-- neq_Zero_Suc :: n:Natural -> {not (eqNatural (Suc n) Zero)}
 -- @-}
--- eq_reflexivityNatural :: IsReflexive Natural
--- eq_reflexivityNatural Zero = trivial
--- eq_reflexivityNatural (Suc n) = eq_reflexivityNatural n
+-- neq_Zero_Suc :: Natural -> Proof
+-- neq_Zero_Suc _ = trivial
 
--- {-@ automatic-instances eq_symmetryNatural @-}
--- {-@
--- eq_symmetryNatural :: IsSymmetric Natural {eqNatural}
--- @-}
--- eq_symmetryNatural :: IsSymmetric Natural
--- eq_symmetryNatural Zero Zero = trivial
--- eq_symmetryNatural (Suc _) Zero = trivial
--- eq_symmetryNatural Zero (Suc _) = trivial
--- eq_symmetryNatural (Suc m) (Suc n) = eq_symmetryNatural m n
+-- -- {-@ automatic-instances reflexivityNatural @-}
+-- -- {-@
+-- -- reflexivityNatural :: x:Natural -> {_:Proof | eqNatural x x}
+-- -- @-}
+-- -- reflexivityNatural :: IsReflexive Natural
+-- -- reflexivityNatural Zero = trivial
+-- -- reflexivityNatural (Suc n) = reflexivityNatural n
 
--- {-@
--- eq_transitivityNatural :: IsTransitive Natural {eqNatural}
--- @-}
--- eq_transitivityNatural :: IsTransitive Natural
--- eq_transitivityNatural Zero Zero Zero = trivial
--- eq_transitivityNatural (Suc _) Zero Zero = trivial
--- eq_transitivityNatural Zero (Suc m) Zero =
---   (eqNatural Zero (Suc m) && eqNatural (Suc m) Zero)
---     === (False && False)
---     === False
---     *** QED
--- eq_transitivityNatural Zero Zero (Suc _) = trivial
--- eq_transitivityNatural (Suc l) (Suc m) Zero =
---   (eqNatural (Suc l) (Suc m) && eqNatural (Suc m) Zero)
---     === (eqNatural (Suc l) (Suc m) && False)
---     === False
---     *** QED
--- eq_transitivityNatural (Suc l) Zero (Suc n) =
---   (eqNatural (Suc l) Zero && eqNatural Zero (Suc n))
---     === (False && eqNatural Zero (Suc n))
---     === False
---     *** QED
--- eq_transitivityNatural Zero (Suc m) (Suc n) =
---   (eqNatural Zero (Suc m) && eqNatural (Suc m) (Suc n))
---     === (False && eqNatural (Suc m) (Suc n))
---     === False
---     *** QED
--- eq_transitivityNatural (Suc l) (Suc m) (Suc n) = undefined
+-- -- {-@ automatic-instances symmetryNatural @-}
+-- -- {-@
+-- -- symmetryNatural :: IsSymmetric Natural {eqNatural}
+-- -- @-}
+-- -- symmetryNatural :: IsSymmetric Natural
+-- -- symmetryNatural Zero Zero = trivial
+-- -- symmetryNatural (Suc _) Zero = trivial
+-- -- symmetryNatural Zero (Suc _) = trivial
+-- -- symmetryNatural (Suc m) (Suc n) = symmetryNatural m n
 
--- -- ( (eqNatural (Suc l) (Suc m) && eqNatural (Suc m) (Suc n))
--- --     === (eqNatural l m && eqNatural (Suc m) (Suc n))
--- --     === (eqNatural l m && eqNatural m n)
--- --     -- *** Admit
+-- -- {-@
+-- -- transitivtyNatural :: IsTransitive Natural {eqNatural}
+-- -- @-}
+-- -- transitivtyNatural :: IsTransitive Natural
+-- -- transitivtyNatural Zero Zero Zero = trivial
+-- -- transitivtyNatural (Suc _) Zero Zero = trivial
+-- -- transitivtyNatural Zero (Suc m) Zero =
+-- --   (eqNatural Zero (Suc m) && eqNatural (Suc m) Zero)
+-- --     === (False && False)
+-- --     === False
 -- --     *** QED
--- -- )
--- --   &&& eq_transitivityNatural l m n
+-- -- transitivtyNatural Zero Zero (Suc _) = trivial
+-- -- transitivtyNatural (Suc l) (Suc m) Zero =
+-- --   (eqNatural (Suc l) (Suc m) && eqNatural (Suc m) Zero)
+-- --     === (eqNatural (Suc l) (Suc m) && False)
+-- --     === False
+-- --     *** QED
+-- -- transitivtyNatural (Suc l) Zero (Suc n) =
+-- --   (eqNatural (Suc l) Zero && eqNatural Zero (Suc n))
+-- --     === (False && eqNatural Zero (Suc n))
+-- --     === False
+-- --     *** QED
+-- -- transitivtyNatural Zero (Suc m) (Suc n) =
+-- --   (eqNatural Zero (Suc m) && eqNatural (Suc m) (Suc n))
+-- --     === (False && eqNatural (Suc m) (Suc n))
+-- --     === False
+-- --     *** QED
+-- -- transitivtyNatural (Suc l) (Suc m) (Suc n) = undefined
 
--- {-@
--- equalityNatural :: Equality Natural
--- @-}
--- equalityNatural :: Equality Natural
--- equalityNatural =
---   Equality
---     { eq = eqNatural,
---       eq_reflexivity = eq_reflexivityNatural,
---       eq_symmetry = eq_symmetryNatural,
---       eq_transitivity = eq_transitivityNatural
---     }
+-- -- -- ( (eqNatural (Suc l) (Suc m) && eqNatural (Suc m) (Suc n))
+-- -- --     === (eqNatural l m && eqNatural (Suc m) (Suc n))
+-- -- --     === (eqNatural l m && eqNatural m n)
+-- -- --     -- *** Admit
+-- -- --     *** QED
+-- -- -- )
+-- -- --   &&& transitivtyNatural l m n
+
+-- -- {-@
+-- -- equalityNatural :: Equality Natural
+-- -- @-}
+-- -- equalityNatural :: Equality Natural
+-- -- equalityNatural =
+-- --   Equality
+-- --     { eq = eqNatural,
+-- --       reflexivity = reflexivityNatural,
+-- --       symmetry = symmetryNatural,
+-- --       transitivty = transitivtyNatural
+-- --     }
 
 {-
 # Propositional Equality
@@ -238,8 +279,8 @@ type EqProp a X Y = {_:EqualityProp a | eqProp X Y}
 
 {-@
 data EqualityProp :: * -> * where
-    LiftEquality :: equality:Equality a -> x:a -> y:a ->
-      {_:Proof | eq equality x y} ->
+    FromEquality :: Equality a => x:a -> y:a ->
+      {_:Proof | eq x y} ->
       EqProp a {x} {y}
   | Extensionality :: f:(a -> b) -> g:(a -> b) ->
       (x:a -> EqProp b {f x} {g x}) ->
@@ -249,8 +290,8 @@ data EqualityProp :: * -> * where
       EqProp b {f x} {f y}
 @-}
 data EqualityProp :: * -> * where
-  LiftEquality ::
-    Equality a ->
+  FromEquality ::
+    Equality a =>
     a ->
     a ->
     Proof ->
@@ -278,43 +319,137 @@ _ =~= y = y
 -}
 
 {-
-### Has Equality
+### Completeness of Propositional Equality (w.r.t SMT Equality)
+-}
+
+-- TODO: implement
+{-@
+assume toEqualitySMT :: Equality a => x:a -> y:a -> EqProp a {x} {y} -> {x = y}
+@-}
+toEqualitySMT :: Equality a => a -> a -> EqualityProp a -> Proof
+toEqualitySMT _ _ _ = trivial
+
+-- TODO: prove toEqualitySMT is inverse of FromEquality
+
+{-
+### Reflexive Propositional Equality
 -}
 
 {-@
-class HasEquality a where
-  equality :: Equality a
+class ReflexivityProp a where
+  reflexivityProp ::
+    x:a ->
+    EqProp a {x} {x}
 @-}
-class HasEquality a where
-  equality :: Equality a
+class ReflexivityProp a where
+  reflexivityProp ::
+    a ->
+    EqualityProp a
+
+instance Equality a => ReflexivityProp a where
+  reflexivityProp x = FromEquality x x (reflexivity x)
+
+-- TODO: doesn't recognize eqProp x x
+-- instance ReflexivityProp b => ReflexivityProp (a -> b) where
+--   reflexivityProp f = Extensionality f f e'
+--     where
+--       e' x = reflexivityProp (f x)
 
 {-
-### Has Reflexive Propositional Equality
+### Symmetric Propositional Equality
 -}
 
 {-@
-class HasReflexivity a where
-  reflexivity :: x:a -> EqProp a {x} {x}
+class SymmetryProp a where
+  symmetryProp ::
+    x:a -> y:a ->
+    EqProp a {x} {y} ->
+    EqProp a {y} {x}
 @-}
-class HasReflexivity a where
-  reflexivity :: a -> EqualityProp a
+class SymmetryProp a where
+  symmetryProp ::
+    a -> a -> EqualityProp a -> EqualityProp a
 
-instance HasEquality a => HasReflexivity a where
-  reflexivity x = LiftEquality equality x x (eq_reflexivity equality x)
+instance Equality a => SymmetryProp a where
+  symmetryProp x y e = FromEquality y x e'
+    where
+      e' = symmetry x y (toEquality x y (toProof (toEqualitySMT x y e)))
 
--- instance HasReflexivity b => HasReflexivity (a -> b) where
---   reflexivity f = Extensionality f f (\x -> reflexivity (f x))
+-- TODO: doesn't derive any eqProp from use of symmetryProp
+-- instance SymmetryProp b => SymmetryProp (a -> b) where
+--   symmetryProp f g e = Extensionality f g e'
+--     where
+--       e' x =
+--         symmetryProp
+--           (f x)
+--           (g x)
+--           (symmetryProp (f x) (g x) (Congruency f g (x &) e))
 
 {-
-### Has Symmetric Propositional Equality
+### Transitive Propositional Equality
 -}
 
--- {-@
--- class HasSymmetry a where
---   symmetry :: x:a -> y:a -> EqProp a {x} {y} -> EqProp {y} {x}
--- @-}
--- class HasSymmetry a where
---   symmetry :: a -> a -> EqualityProp a -> EqualityProp a
+{-@
+class TransitiveProp a where
+  transitivtyProp ::
+    x:a -> y:a -> z:a ->
+    EqProp a {x} {y} ->
+    EqProp a {y} {z} ->
+    EqProp a {x} {z}
+@-}
+class TransitiveProp a where
+  transitivtyProp ::
+    a -> a -> a -> EqualityProp a -> EqualityProp a -> EqualityProp a
 
--- instance HasEquality a => HasSymmetry a where
---   symmetry x y e = LiftEquality equality y x (eq_symmetry equality x y)
+instance Equality a => TransitiveProp a where
+  transitivtyProp x y z exy eyz = FromEquality x z e'
+    where
+      e' = toEquality x z (toEqualitySMT x y exy &&& toEqualitySMT y z eyz)
+
+-- TODO: doesn't derive any eqProp from use of transitivityProp
+-- instance TransitiveProp b => TransitiveProp (a -> b) where
+--   transitivtyProp f g h efg egh = Extensionality f g e'
+--     where
+--       e' x =
+--         transitivtyProp
+--           (f x)
+--           (g x)
+--           (h x)
+--           (Congruency f g (x &) efg)
+--           (Congruency g h (x &) egh)
+
+{-
+### Congruency-preserving Propositional Equality
+-}
+
+{-@
+class CongruencyProp a b where
+  congruencyProp ::
+    x:a -> y:a -> c:(a -> b) ->
+    EqProp a {x} {y} ->
+    EqProp b {c x} {c y}
+@-}
+class CongruencyProp a b where
+  congruencyProp ::
+    a -> a -> (a -> b) -> EqualityProp a -> EqualityProp b
+
+instance (Equality a, Equality b) => CongruencyProp a b where
+  congruencyProp x y c exy =
+    FromEquality
+      (c x)
+      (c y)
+      -- {eq (c x) (c y)}
+      ( congruency
+          x
+          y
+          c
+          -- {eq x y}
+          (toEquality x y (toEqualitySMT x y exy))
+      )
+
+-- TODO: doesn't derive correct eqProp from use of congruencyProp
+-- instance CongruencyProp a c => CongruencyProp a (b -> c) where
+--   -- congruencyProp :: a -> a -> (a -> b -> c) -> Proof -> Proof
+--   congruencyProp x y c exy = Extensionality (c x) (c y) e'
+--     where
+--       e' z = congruencyProp x y (\x' -> c x' z) exy

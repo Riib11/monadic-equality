@@ -35,6 +35,7 @@ library:
     - RankNTypes
     - FlexibleInstances
     - UndecidableInstances
+    - MultiParamTypeClasses
   ghc-options:
     - -Wall
     - -Wno-name-shadowing
