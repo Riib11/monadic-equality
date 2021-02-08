@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: b054fe31c60fa21717443c0b221a491a77368fbff105da7e8c675f0e523fd944
+-- hash: 2e701faa5b64e10eb44774c79ff3acf4005d4ce7e7faa9f5c0e955d5e777671f
 
 name:           monadic-equality
 version:        0.1.0.0
@@ -33,6 +33,7 @@ library
       Function
       Monad
       Proof
+      RedundantBind
       Relation
       Test1
       Test2
