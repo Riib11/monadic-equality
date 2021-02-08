@@ -155,27 +155,20 @@ isReflexiveSMT_Bool :: IsReflexive <{\x y -> eqSMT x y}> EqualSMT Bool
 isReflexiveSMT_Bool :: IsReflexive EqualSMT Bool
 isReflexiveSMT_Bool = IsReflexive (\x -> SMT x x trivial)
 
--- where
---   e x = SMT x x trivial
-
-{-@
-isSymmetricSMT_Bool :: IsSymmetric <{\x y -> eqSMT x y}> EqualSMT Bool
-@-}
-isSymmetricSMT_Bool :: IsSymmetric EqualSMT Bool
-isSymmetricSMT_Bool = IsSymmetric e
-  where
-    {-@
-    assume e :: x:Bool -> y:Bool ->
-      {_:EqualSMT Bool | eqSMT x y} ->
-      {_:EqualSMT Bool | eqSMT y x}
-    @-}
-    e :: Bool -> Bool -> EqualSMT Bool -> EqualSMT Bool
-    e = undefined
-
--- e x y e' = SMT y x (fromEqualSMT x y e')
-
--- Eq e a EQ X Y = {_:e a | EQ X Y}
--- EqSMT e a X Y = Eq EqualSMT a {eqSMT} {X} {Y}
+-- TODO
+-- {-@
+-- assume isSymmetricSMT_Bool :: IsSymmetric <{\x y -> eqSMT x y}> EqualSMT Bool
+-- @-}
+-- isSymmetricSMT_Bool :: IsSymmetric EqualSMT Bool
+-- isSymmetricSMT_Bool = IsSymmetric e
+--   where
+--     {-@
+--     assume e :: x:Bool -> y:Bool ->
+--       {_:EqualSMT Bool | eqSMT x y} ->
+--       {_:EqualSMT Bool | eqSMT y x}
+--     @-}
+--     e :: Bool -> Bool -> EqualSMT Bool -> EqualSMT Bool
+--     e = undefined
 
 {-
 ## Properties
