@@ -1,4 +1,4 @@
-module Proof where
+module ProofCombinators where
 
 --------------------------------------------------------------------------------
 

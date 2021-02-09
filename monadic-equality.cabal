@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: aa666222d283596c835c3bfeed103a9885b44739cbdfd3a54858ced53e57d3ed
+-- hash: cbb5d012e9a2b4d1080296688d533b635288b5c572feb0f3612482208bb9b5c7
 
 name:           monadic-equality
 version:        0.1.0.0
@@ -27,20 +27,7 @@ source-repository head
 
 library
   exposed-modules:
-      Equality
-      Equality.Prop
-      Equality.SMT
-      Function
-      Monad
-      Proof
-      RedundantBind
-      Relation
-      Test1
-      Test2
-      Test3
-      Test4
-      Test5
-      Witness
+      ProofCombinators
   other-modules:
       Paths_monadic_equality
   hs-source-dirs:
