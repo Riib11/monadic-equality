@@ -85,10 +85,13 @@ data Equality e a = Equality
 eqSMT :: a -> a -> Bool
 eqSMT = undefined
 
--- -- TODO: temp
--- {-@ reflect eqSMT @-}
--- eqSMT :: a -> a -> Bool
--- eqSMT _ _ = True
+{-@ measure eqSMT_1 @-}
+eqSMT_1 :: EqualSMT a -> a
+eqSMT_1 (SMT x _ _) = x
+
+{-@ measure eqSMT_2 @-}
+eqSMT_2 :: EqualSMT a -> a
+eqSMT_2 (SMT _ y _) = y
 
 {-@
 type EqSMT a X Y = Eq EqualSMT a {eqSMT} {X} {Y}
@@ -104,17 +107,19 @@ data EqualSMT :: * -> * where
 data EqualSMT :: * -> * where
   SMT :: a -> a -> Proof -> EqualSMT a
 
-{-@
-toEqualSMT :: x:a -> y:a -> {_:Proof | x = y} -> EqSMT a {x} {y}
-@-}
-toEqualSMT :: a -> a -> Proof -> EqualSMT a
-toEqualSMT x y e = SMT x y e
+-- TODO
+-- {-@
+-- toEqualSMT :: x:a -> y:a -> {_:Proof | x = y} -> EqSMT a {x} {y}
+-- @-}
+-- toEqualSMT :: a -> a -> Proof -> EqualSMT a
+-- toEqualSMT x y e = SMT x y e
 
-{-@
-assume fromEqualSMT :: x:a -> y:a -> EqSMT a {x} {y} -> {x = y}
-@-}
-fromEqualSMT :: a -> a -> EqualSMT a -> Proof
-fromEqualSMT x y (SMT _x _y e) = undefined
+-- TODO
+-- {-@
+-- assume fromEqualSMT :: x:a -> y:a -> EqSMT a {x} {y} -> {x = y}
+-- @-}
+-- fromEqualSMT :: a -> a -> EqualSMT a -> Proof
+-- fromEqualSMT x y (SMT _ _ e) = e
 
 {-
 ## Instances

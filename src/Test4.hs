@@ -1,57 +1,6 @@
 module Test4 where
 
-{-
-# Proof
--}
-
-type Proof = ()
-
-toProof :: a -> Proof
-toProof _ = ()
-
-(&&&) :: Proof -> Proof -> Proof
-x &&& _ = x
-
-{-@ withProof :: x:a -> b -> {v:a | v = x} @-}
-withProof :: a -> b -> a
-withProof x _ = x
-
-{-@ impossible :: {v:a | false} -> b @-}
-impossible :: a -> b
-impossible _ = undefined
-
-trivial :: Proof
-trivial = ()
-
-infixl 3 ***
-
-{-@ assume (***) :: a -> p:QED -> { if (isAdmit p) then false else true } @-}
-(***) :: a -> QED -> Proof
-_ *** _ = ()
-
-data QED = Admit | QED
-
-{-@ measure isAdmit :: QED -> Bool @-}
-{-@ Admit :: {v:QED | isAdmit v } @-}
-
-infixl 3 ===
-
-{-@ (===) :: x:a -> y:{a | y = x} -> {v:a | v = x && v = y} @-}
-(===) :: a -> a -> a
-_ === y = y
-
-infixl 4 ?
-
-{-@ (?) :: forall a b <pa :: a -> Bool, pb :: b -> Bool>. a<pa> -> b<pb> -> a<pa> @-}
-(?) :: a -> b -> a
-x ? _ = x
-{-# INLINE (?) #-}
-
-{-@ measure prop :: a -> b           @-}
-{-@ type Prop E = {v:_ | prop v = E} @-}
-
-(&) :: a -> (a -> b) -> b
-x & f = f x
+import Proof
 
 {-
 # Equality
