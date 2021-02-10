@@ -59,4 +59,31 @@ fromEqualSMT _ _ w = toProof w
 isReflexive :: Relation.IsReflexive <eqsmt> EqualSMT a
 @-}
 isReflexive :: Relation.IsReflexive EqualSMT a
-isReflexive = IsReflexive (\x -> SMT x x trivial)
+isReflexive =
+  IsReflexive
+    ( \x ->
+        let exx = trivial
+         in SMT x x exx
+    )
+
+{-@
+isSymmetric :: Relation.IsSymmetric <eqsmt> EqualSMT a
+@-}
+isSymmetric :: Relation.IsSymmetric EqualSMT a
+isSymmetric =
+  IsSymmetric
+    ( \x y eSMTxy ->
+        let eyx = fromEqualSMT x y eSMTxy
+         in SMT y x eyx
+    )
+
+{-@
+isTransitive :: Relation.IsTransitive <eqsmt> EqualSMT a
+@-}
+isTransitive :: Relation.IsTransitive EqualSMT a
+isTransitive =
+  IsTransitive
+    ( \x y z eSMTxy eSMTyz ->
+        let exz = fromEqualSMT x y eSMTxy &&& fromEqualSMT y z eSMTyz
+         in SMT x z exz
+    )
