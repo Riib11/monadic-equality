@@ -46,7 +46,7 @@ fromEqualSMT _ _ w = toProof w
 -}
 
 {-@
-isReflexive :: Relation.IsReflexive <\x y w -> eqsmt x y w> EqualSMT a
+isReflexive :: Relation.IsReflexive <{\x y w -> eqsmt x y w}> EqualSMT a
 @-}
 isReflexive :: Relation.IsReflexive EqualSMT a
 isReflexive =
@@ -58,35 +58,29 @@ isReflexive =
 
 {-
 TODO: error
-    • Cannot parse specification:
-    unexpected "e"
-    expecting predicate1P
-    •
-   |
-49 | isReflexive :: Relation.IsReflexive <\x y w -> eqsmt x y w> EqualSMT a
-   |                                                ^
+
+**** LIQUID: ERROR :1:1-1:1: Error
+  PANIC: Please file an issue at https://github.com/ucsd-progsys/liquid-fixpoint
+Unknown func-sort: (Relation.IsSymmetric (Equality.SMT.EqualSMT Int) Int) : Int for apply cast_as_int lq_karg$Equality.SMT.isSymmetric##k_##806
 -}
+{-@
+isSymmetric :: Relation.IsSymmetric <{\x y w -> eqsmt x y w}> EqualSMT a
+@-}
+isSymmetric :: Relation.IsSymmetric EqualSMT a
+isSymmetric =
+  IsSymmetric
+    ( \x y eSMTxy ->
+        let eyx = fromEqualSMT x y eSMTxy
+         in SMT y x eyx
+    )
 
--- TODO: once isReflexive works, uncomment the following
-
--- {-@
--- isSymmetric :: Relation.IsSymmetric <eqsmt> EqualSMT a
--- @-}
--- isSymmetric :: Relation.IsSymmetric EqualSMT a
--- isSymmetric =
---   IsSymmetric
---     ( \x y eSMTxy ->
---         let eyx = fromEqualSMT x y eSMTxy
---          in SMT y x eyx
---     )
-
--- {-@
--- isTransitive :: Relation.IsTransitive <eqsmt> EqualSMT a
--- @-}
--- isTransitive :: Relation.IsTransitive EqualSMT a
--- isTransitive =
---   IsTransitive
---     ( \x y z eSMTxy eSMTyz ->
---         let exz = fromEqualSMT x y eSMTxy &&& fromEqualSMT y z eSMTyz
---          in SMT x z exz
---     )
+{-@
+isTransitive :: Relation.IsTransitive <{\x y w -> eqsmt x y w}> EqualSMT a
+@-}
+isTransitive :: Relation.IsTransitive EqualSMT a
+isTransitive =
+  IsTransitive
+    ( \x y z eSMTxy eSMTyz ->
+        let exz = fromEqualSMT x y eSMTxy &&& fromEqualSMT y z eSMTyz
+         in SMT x z exz
+    )
