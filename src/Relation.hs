@@ -3,30 +3,25 @@ module Relation where
 import ProofCombinators
 
 {-
-type Re r a RE X Y :: * where
-  r :: * -> *
-  a :: *
-  RE :: r a -> a -> a -> Bool
-  X, Y :: a
+# Relation
+
+A relation is encoded by
+  - a witness GADT `r :: * -> *`
+  - a relation measure `re :: a -> a -> r a -> Bool`
+  - a domain type `a :: *`
+
+A witness that `x :: a` and `y :: a` are related has the form
+```
+  w:r a <re x y>
+```
+encoding that `w :: r a` is a witness refined by `re x y`.
 -}
-{-@
-type Re r a RE X Y = {w:r a | RE w x y}
-@-}
-
--- {-@
--- data IsRelation r a <re :: r a -> a -> a -> Bool> = IsRelation
---   { x_of :: r a -> a,
---     y_of :: r a -> a,
---     fromWitness :: {w:r a | re w x y} -> {re w (x_of w) (y_of w)}
---   }
--- @-}
--- data IsRelation r a = IsRelation (r a -> a) (r a -> a) (r a -> Proof)
 
 {-@
-data IsReflexive r a <re :: r a -> a -> a -> Bool> = IsReflexive
+data IsReflexive r a <re :: a -> a -> r a -> Bool> = IsReflexive
   { reflexivity ::
       x:a ->
-      Re r a {re} {x} {x}
+      r a <re x x>
   }
 @-}
 data IsReflexive r a = IsReflexive (a -> r a)
@@ -35,11 +30,11 @@ reflexivity :: IsReflexive r a -> (a -> r a)
 reflexivity (IsReflexive reflexivity_) = reflexivity_
 
 {-@
-data IsSymmetric r a <re :: r a -> a -> a -> Bool> = IsSymmetric
+data IsSymmetric r a <re :: a -> a -> r a -> Bool> = IsSymmetric
   { symmetry ::
       x:a -> y:a ->
-      Re r a {re} {x} {y} ->
-      Re r a {re} {y} {x}
+      r a <re x y> ->
+      r a <re y x>
   }
 @-}
 data IsSymmetric r a = IsSymmetric (a -> a -> r a -> r a)
@@ -48,12 +43,12 @@ symmetry :: IsSymmetric r a -> (a -> a -> r a -> r a)
 symmetry (IsSymmetric symmetry_) = symmetry_
 
 {-@
-data IsTransitive r a <re :: r a -> a -> a -> Bool> = IsTransitive
+data IsTransitive r a <re :: a -> a -> r a -> Bool> = IsTransitive
   { transitivity ::
       x:a -> y:a -> z:a ->
-      Re r a {re} {x} {y} ->
-      Re r a {re} {y} {z} ->
-      Re r a {re} {x} {z}
+      r a <re x y> ->
+      r a <re y z> ->
+      r a <re x z>
   }
 @-}
 data IsTransitive r a = IsTransitive (a -> a -> a -> r a -> r a -> r a)

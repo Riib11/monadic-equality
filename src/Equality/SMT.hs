@@ -10,11 +10,12 @@ import Relation
 
 -- Measure. Proxy for built-in SMT equality.
 {-@
-measure eqsmt :: EqualSMT a -> x:a -> y:a -> Bool
+measure eqsmt :: x:a -> y:a -> EqualSMT a -> Bool
 @-}
 
+-- TODO: is this working? tends to not error when it breaks..
 {-@
-type EqSMT a X Y = {w:EqualSMT a | eqsmt w X Y}
+type EqSMT a X Y = (EqualSMT a)<eqsmt X Y>
 @-}
 
 {-@
@@ -33,7 +34,7 @@ toEqualSMT :: x:a -> y:a -> {_:Proof | x = y} -> EqSMT a {x} {y}
 toEqualSMT :: a -> a -> Proof -> EqualSMT a
 toEqualSMT = SMT
 
--- must be assumed
+-- TODO: must this be assumed?
 {-@
 assume fromEqualSMT :: x:a -> y:a -> EqSMT a {x} {y} -> {x = y}
 @-}
@@ -44,17 +45,8 @@ fromEqualSMT _ _ w = toProof w
 ## Properties
 -}
 
--- TODO: error
-{-
-/Users/henry/Documents/Projects/monadic-quicksort-verification/monadic-equality/src/Equality/SMT.hs:49:16: error:
-    • Cannot apply unbound abstract refinement `eqsmt`
-    •
-   |
-49 | isReflexive :: Relation.IsReflexive <eqsmt> EqualSMT a
-   |                ^
--}
 {-@
-isReflexive :: Relation.IsReflexive <eqsmt> EqualSMT a
+isReflexive :: Relation.IsReflexive <\x y w -> eqsmt x y w> EqualSMT a
 @-}
 isReflexive :: Relation.IsReflexive EqualSMT a
 isReflexive =
@@ -64,24 +56,37 @@ isReflexive =
          in SMT x x exx
     )
 
-{-@
-isSymmetric :: Relation.IsSymmetric <eqsmt> EqualSMT a
-@-}
-isSymmetric :: Relation.IsSymmetric EqualSMT a
-isSymmetric =
-  IsSymmetric
-    ( \x y eSMTxy ->
-        let eyx = fromEqualSMT x y eSMTxy
-         in SMT y x eyx
-    )
+{-
+TODO: error
+    • Cannot parse specification:
+    unexpected "e"
+    expecting predicate1P
+    •
+   |
+49 | isReflexive :: Relation.IsReflexive <\x y w -> eqsmt x y w> EqualSMT a
+   |                                                ^
+-}
 
-{-@
-isTransitive :: Relation.IsTransitive <eqsmt> EqualSMT a
-@-}
-isTransitive :: Relation.IsTransitive EqualSMT a
-isTransitive =
-  IsTransitive
-    ( \x y z eSMTxy eSMTyz ->
-        let exz = fromEqualSMT x y eSMTxy &&& fromEqualSMT y z eSMTyz
-         in SMT x z exz
-    )
+-- TODO: once isReflexive works, uncomment the following
+
+-- {-@
+-- isSymmetric :: Relation.IsSymmetric <eqsmt> EqualSMT a
+-- @-}
+-- isSymmetric :: Relation.IsSymmetric EqualSMT a
+-- isSymmetric =
+--   IsSymmetric
+--     ( \x y eSMTxy ->
+--         let eyx = fromEqualSMT x y eSMTxy
+--          in SMT y x eyx
+--     )
+
+-- {-@
+-- isTransitive :: Relation.IsTransitive <eqsmt> EqualSMT a
+-- @-}
+-- isTransitive :: Relation.IsTransitive EqualSMT a
+-- isTransitive =
+--   IsTransitive
+--     ( \x y z eSMTxy eSMTyz ->
+--         let exz = fromEqualSMT x y eSMTxy &&& fromEqualSMT y z eSMTyz
+--          in SMT x z exz
+--     )

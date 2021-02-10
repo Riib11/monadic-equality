@@ -2,12 +2,22 @@ module Equality where
 
 import Relation
 
-{-@
-type Eq e a EQ X Y = Re r a {EQ} {X} {Y}
-@-}
+{-
+# Equality
+
+An equality is encoded by
+  - a witness GADT `e :: * -> *`
+  - an equality measure `eq :: a -> a -> e a -> Bool`
+  - a domain type `a :: *`
+  - proofs that the relation specified by `e`, eq`, `a` is an equivalence
+    relation i.e. is
+      - reflexive (`IsReflexive`)
+      - symmetric (`IsSymmetric`)
+      - transitive (`IsTransitive`)
+-}
 
 {-@
-data IsEquality e a <eq :: e a -> a -> a -> Bool> = IsEquality
+data IsEquality e a <eq :: a -> a -> e a -> Bool> = IsEquality
   { isReflexive :: IsReflexive e a <eq>,
     isSymmetric :: IsSymmetric e a <eq>,
     isTransitive :: IsTransitive e a <eq>
