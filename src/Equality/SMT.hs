@@ -17,15 +17,6 @@ measure eqsmt :: EqualSMT a -> x:a -> y:a -> Bool
 type EqSMT a X Y = {w:EqualSMT a | eqsmt w X Y}
 @-}
 
--- TODO: error
-{-
-/Users/henry/Documents/Projects/monadic-quicksort-verification/monadic-equality/src/Equality/SMT.hs:49:16: error:
-    • Cannot apply unbound abstract refinement `eqsmt`
-    •
-   |
-49 | isReflexive :: Relation.IsReflexive <eqsmt> EqualSMT a
-   |                ^
--}
 {-@
 data EqualSMT :: * -> * where
   SMT ::
@@ -53,6 +44,15 @@ fromEqualSMT _ _ w = toProof w
 ## Properties
 -}
 
+-- TODO: error
+{-
+/Users/henry/Documents/Projects/monadic-quicksort-verification/monadic-equality/src/Equality/SMT.hs:49:16: error:
+    • Cannot apply unbound abstract refinement `eqsmt`
+    •
+   |
+49 | isReflexive :: Relation.IsReflexive <eqsmt> EqualSMT a
+   |                ^
+-}
 {-@
 isReflexive :: Relation.IsReflexive <eqsmt> EqualSMT a
 @-}
