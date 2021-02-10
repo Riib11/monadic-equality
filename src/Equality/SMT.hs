@@ -19,6 +19,15 @@ eqsmt _ _ _ = undefined
 type EqSMT a X Y = {w:EqualSMT a | eqsmt w X Y}
 @-}
 
+-- TODO: error
+{-
+/Users/henry/Documents/Projects/monadic-quicksort-verification/monadic-equality/src/Equality/SMT.hs:49:16: error:
+    • Cannot apply unbound abstract refinement `eqsmt`
+    •
+   |
+49 | isReflexive :: Relation.IsReflexive <eqsmt> EqualSMT a
+   |                ^
+-}
 {-@
 data EqualSMT :: * -> * where
   SMT ::
@@ -35,6 +44,7 @@ toEqualSMT :: x:a -> y:a -> {_:Proof | x = y} -> EqSMT a {x} {y}
 toEqualSMT :: a -> a -> Proof -> EqualSMT a
 toEqualSMT = SMT
 
+-- must be assumed
 {-@
 assume fromEqualSMT :: x:a -> y:a -> EqSMT a {x} {y} -> {x = y}
 @-}
