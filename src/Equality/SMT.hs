@@ -12,8 +12,6 @@ import Relation
 {-@
 measure eqsmt :: EqualSMT a -> x:a -> y:a -> Bool
 @-}
-eqsmt :: EqualSMT a -> a -> a -> Bool
-eqsmt _ _ _ = undefined
 
 {-@
 type EqSMT a X Y = {w:EqualSMT a | eqsmt w X Y}
