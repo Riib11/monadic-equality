@@ -13,14 +13,14 @@ type Re r a RE X Y :: * where
 type Re r a RE X Y = {w:r a | RE w x y}
 @-}
 
-{-@
-data IsRelation r a <re :: r a -> a -> a -> Bool> = IsRelation
-  { x_of :: r a -> a,
-    y_of :: r a -> a,
-    fromWitness :: {w:r a | re w x y} -> {re w (x_of w) (y_of w)}
-  }
-@-}
-data IsRelation r a = IsRelation (r a -> a) (r a -> a) (r a -> Proof)
+-- {-@
+-- data IsRelation r a <re :: r a -> a -> a -> Bool> = IsRelation
+--   { x_of :: r a -> a,
+--     y_of :: r a -> a,
+--     fromWitness :: {w:r a | re w x y} -> {re w (x_of w) (y_of w)}
+--   }
+-- @-}
+-- data IsRelation r a = IsRelation (r a -> a) (r a -> a) (r a -> Proof)
 
 {-@
 data IsReflexive r a <re :: r a -> a -> a -> Bool> = IsReflexive

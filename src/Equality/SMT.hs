@@ -4,8 +4,13 @@ import Equality
 import ProofCombinators
 import Relation
 
+{-
+# SMT Equality
+-}
+
+-- Measure. Proxy for built-in SMT equality.
 {-@
-measure eqSMT :: EqualSMT a -> a -> a -> Bool
+measure eqSMT :: EqualSMT a -> x:a -> y:a -> Bool
 @-}
 
 {-@
@@ -29,7 +34,11 @@ toEqualSMT :: a -> a -> Proof -> EqualSMT a
 toEqualSMT = SMT
 
 {-@
-fromEqualSMT :: x:a -> y:a -> {w:EqualSMT a | eqSMT w x y} -> {x = y}
+assume fromEqualSMT :: x:a -> y:a -> EqSMT a {x} {y} -> {x = y}
 @-}
 fromEqualSMT :: a -> a -> EqualSMT a -> Proof
-fromEqualSMT _ _ (SMT _ _ e) = e
+fromEqualSMT _ _ w = toProof w
+
+{-
+## Properties
+-}
