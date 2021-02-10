@@ -1,6 +1,6 @@
 module Equality.SMT where
 
-import Equality
+import qualified Equality
 import ProofCombinators
 import Relation
 
@@ -10,11 +10,13 @@ import Relation
 
 -- Measure. Proxy for built-in SMT equality.
 {-@
-measure eqSMT :: EqualSMT a -> x:a -> y:a -> Bool
+measure eqsmt :: EqualSMT a -> x:a -> y:a -> Bool
 @-}
+eqsmt :: EqualSMT a -> a -> a -> Bool
+eqsmt _ _ _ = undefined
 
 {-@
-type EqSMT a X Y = {w:EqualSMT a | eqSMT w X Y}
+type EqSMT a X Y = {w:EqualSMT a | eqsmt w X Y}
 @-}
 
 {-@
@@ -42,3 +44,9 @@ fromEqualSMT _ _ w = toProof w
 {-
 ## Properties
 -}
+
+{-@
+isReflexive :: Relation.IsReflexive <eqsmt> EqualSMT a
+@-}
+isReflexive :: Relation.IsReflexive EqualSMT a
+isReflexive = IsReflexive (\x -> SMT x x trivial)
