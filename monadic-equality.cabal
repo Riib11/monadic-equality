@@ -29,7 +29,6 @@ library
   exposed-modules:
       Equality
       Equality.SMT
-      Equality0
       ProofCombinators
       Relation
   other-modules:
