@@ -2,7 +2,7 @@ module Equality.SMT where
 
 import qualified Equality
 import ProofCombinators
-import Relation
+import qualified Relation
 
 -- TODO: build with liquidhaskell develop branch (errors with release branch)
 
@@ -47,24 +47,24 @@ fromEqualSMT _ _ w = toProof w
 -}
 
 {-@
-type IsReflexiveEqualSMT a = IsReflexive <{\x y w -> eqsmt x y w}> EqualSMT a
+type IsReflexive a = Relation.IsReflexive<{\x y w -> eqsmt x y w}> EqualSMT a
 @-}
-type IsReflexiveEqualSMT a = IsReflexive EqualSMT a
+type IsReflexive a = Relation.IsReflexive a
 
 {-@
-type IsSymmetricEqualSMT a = IsSymmetric <{\x y w -> eqsmt } a
+type IsSymmetric a = Relation.IsSymmetric <{\x y w -> eqsmt } a
 @-}
-type IsSymmetricEqualSMT a = IsSymmetric a
+type IsSymmetric a = Relation.IsSymmetric a
 
 {-@
-type IsTransitiveEqualSMT a = IsSymmetric <{\x y w -> eqsmt x y w}> a
+type IsTransitive a = Relation.IsTransitive <{\x y w -> eqsmt x y w}> a
 @-}
-type IsTransitiveEqualSMT a = IsSymmetric a
+type IsTransitive a = Relation.IsTransitive
 
 {-@
-type IsEqualityEqualSMT a = Equality.IsEquality <{\x y w -> eqsmt x y w}> a
+type IsEquality a = Equality.IsEquality <{\x y w -> eqsmt x y w}> a
 @-}
-type IsEqualityEqualSMT a = Equality.IsEquality a
+type IsEquality a = Equality.IsEquality a
 
 {-
 ## Instances
@@ -73,12 +73,12 @@ type IsEqualityEqualSMT a = Equality.IsEquality a
 -- TODO: temporary notes
 {-
 
-A general framework for proving instances of `IsEqualityEqualSMT`:
+A general framework for proving instances of `IsEquality`:
 
 {-@
-isReflexive :: IsReflexiveEqualSMT a
+isReflexive :: IsReflexive a
 @-}
-isReflexive :: IsReflexiveEqualSMT a
+isReflexive :: IsReflexive a
 isReflexive =
   IsReflexive
     ( \x ->
@@ -87,9 +87,9 @@ isReflexive =
     )
 
 {-@
-isSymmetric :: IsSymmetricEqualSMT a
+isSymmetric :: IsSymmetric a
 @-}
-isSymmetric :: IsSymmetricEqualSMT a
+isSymmetric :: IsSymmetric a
 isSymmetric =
   IsSymmetric
     ( \x y eSMTxy ->
@@ -98,9 +98,9 @@ isSymmetric =
     )
 
 {-@
-isTransitive :: IsTransitiveEqualSMT a
+isTransitive :: IsTransitive a
 @-}
-isTransitive :: IsTransitiveEqualSMT a
+isTransitive :: IsTransitive a
 isTransitive =
   IsTransitive
     ( \x y z eSMTxy eSMTyz ->
@@ -109,9 +109,41 @@ isTransitive =
     )
 
 {-@
-isEquality :: IsEqualityEqualSMT a
+isEquality :: IsEquality a
 @-}
-isEquality :: IsEqualityEqualSMT a
+isEquality :: IsEquality a
 isEquality = IsEquality isReflexive isSymmetric isTransitive
 
 -}
+
+{-
+### Bool
+-}
+
+-- TODO: implement
+{-@
+isReflexive_Bool :: IsReflexive Bool
+@-}
+isReflexive_Bool :: IsReflexive Bool
+isReflexive_Bool = undefined
+
+-- TODO: implement
+{-@
+isSymmetric_Bool :: IsSymmetric Bool
+@-}
+isSymmetric_Bool :: IsSymmetric Bool
+isSymmetric_Bool = undefined
+
+-- TODO: implement
+{-@
+isTransitive_Bool :: IsTransitive Bool
+@-}
+isTransitive_Bool :: IsTransitive Bool
+isTransitive_Bool = undefined
+
+-- TODO: implement
+{-@
+isEquality_Bool :: IsEquality Bool
+@-}
+isEquality_Bool :: IsEquality Bool
+isEquality_Bool = undefined

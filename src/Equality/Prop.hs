@@ -1,9 +1,9 @@
 module Equality.Prop where
 
 import qualified Equality
-import Equality.SMT
+import qualified Equality.SMT
 import ProofCombinators
-import Relation
+import qualified Relation
 
 -- TODO: build with liquidhaskell develop branch
 
@@ -26,7 +26,7 @@ type EqProp a X Y = (EqualProp a)<eqprop X Y>
 data EqualProp :: * -> * where
     InjectSMT ::
       x:a -> y:a ->
-      EqSMT a {x} {y} ->
+      Equality.SMT.EqSMT a {x} {y} ->
       EqProp a {x} {y}
   | Extensionality ::
       f:(a -> b) -> g:(a -> b) ->
@@ -47,73 +47,87 @@ data EqualProp :: * -> * where
 -}
 
 {-@
-type IsReflexiveEqualProp a = IsReflexive <{\x y w -> eqprop x y w}> EqualProp a
+type IsReflexive a = Relation.IsReflexive <{\x y w -> eqprop x y w}> EqualProp a
 @-}
-type IsReflexiveEqualProp a = IsReflexive EqualProp a
+type IsReflexive a = Relation.IsReflexive EqualProp a
 
 {-@
-isReflexive_base :: IsReflexiveEqualSMT a -> IsReflexiveEqualProp a
+type IsSymmetric a = Relation.IsSymmetric <{\x y w -> eqprop x y w}> EqualProp a
 @-}
-isReflexive_base :: IsReflexiveEqualSMT a -> IsReflexiveEqualProp a
+type IsSymmetric a = Relation.IsSymmetric EqualProp a
 
-isReflexive IsReflexiveEqualSMT =
+{-@
+type IsTransitive a = Relation.IsTransitive <{\x y w -> eqprop x y w}> EqualProp a
+@-}
+type IsTransitive a = Relation.IsTransitive EqualProp a
+
+{-
+## Instances
+-}
+
+{-@
+isReflexive_base :: Equality.SMT.IsReflexive a -> IsReflexive a
+@-}
+isReflexive_base :: Equality.SMT.IsReflexive a -> IsReflexive a
+
+isReflexive Equality.SMT.IsReflexive =
   IsReflexive
     ( \x ->
-        let eSMTxx = reflexivity IsReflexiveEqualSMT x
+        let eSMTxx = reflexivity Equality.SMT.IsReflexive x
          in SMT x x eSMTxx
     )
 
 -- TODO: implement
 {-@
-isReflexive_induct :: IsReflexiveEqualProp b -> IsReflexiveEqualProp (a -> b)
+isReflexive_induct :: IsReflexive b -> IsReflexive (a -> b)
 @-}
-isReflexive_induct :: IsReflexiveEqualProp b -> IsReflexiveEqualProp (a -> b)
+isReflexive_induct :: IsReflexive b -> IsReflexive (a -> b)
 isReflexive_induct = undefined
 
 -- TODO: implement
 {-@
-isSymmetricEqualProp_base :: IsSymmetricEqualSMT a -> IsSymmetricEqualProp a
+isSymmetricEqualProp_base :: Equality.SMT.IsSymmetric a -> IsSymmetric a
 @-}
-isSymmetricEqualProp_base :: IsSymmetricEqualSMT a -> IsSymmetricEqualProp a
+isSymmetricEqualProp_base :: Equality.SMT.IsSymmetric a -> IsSymmetric a
 isSymmetricEqualProp_base = undefined
 
 -- TODO: implement
 {-@
 isSymmetricEqualProp_induct ::
-  IsSymmetricEqualProp b -> IsSymmetricEqualProp (a -> b)
+  IsSymmetric b -> IsSymmetric (a -> b)
 @-}
 isSymmetricEqualProp_induct ::
-  IsSymmetricEqualProp b -> IsSymmetricEqualProp (a -> b)
+  IsSymmetric b -> IsSymmetric (a -> b)
 isSymmetricEqualProp_induct = undefined
 
 -- TODO: implement
 {-@
-isTransitiveEqualProp_base :: IsTransitiveEqualSMT a -> IsTransitiveEqualProp a
+isTransitiveEqualProp_base :: Equality.SMT.IsTransitive a -> IsTransitive a
 @-}
-isTransitiveEqualProp_base :: IsTransitiveEqualSMT a -> IsTransitiveEqualProp a
+isTransitiveEqualProp_base :: Equality.SMT.IsTransitive a -> IsTransitive a
 isTransitiveEqualProp_base = undefined
 
 -- TODO: implement
 {-@
 isTransitiveEqualProp_induct ::
-  IsTransitiveEqualSMT b -> IsTransitiveEqualProp (a -> b)
+  Equality.SMT.IsTransitive b -> IsTransitive (a -> b)
 @-}
 isTransitiveEqualProp_induct ::
-  IsTransitiveEqualSMT b -> IsTransitiveEqualProp (a -> b)
+  Equality.SMT.IsTransitive b -> IsTransitive (a -> b)
 isTransitiveEqualProp_induct = undefined
 
 -- TODO: implement
 {-@
-isEqualityEqualProp_base :: IsEqualityEqualSMT a -> IsEqualityEqualProp a
+isEqualityEqualProp_base :: Equality.SMT.IsEquality a -> IsEquality a
 @-}
-isEqualityEqualProp_base :: IsEqualityEqualSMT a -> IsEqualityEqualProp a
+isEqualityEqualProp_base :: Equality.SMT.IsEquality a -> IsEquality a
 isEqualityEqualProp_base = undefined
 
 -- TODO: implement
 {-@
 isEqualityEqualProp_induct ::
-  IsEqualityEqualSMT b -> IsEqualityEqualProp (a -> b)
+  Equality.SMT.IsEquality b -> IsEquality (a -> b)
 @-}
 isEqualityEqualProp_induct ::
-  IsEqualityEqualSMT b -> IsEqualityEqualProp (a -> b)
+  Equality.SMT.IsEquality b -> IsEquality (a -> b)
 isEqualityEqualProp_induct = undefined
