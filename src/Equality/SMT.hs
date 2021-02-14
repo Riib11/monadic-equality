@@ -4,6 +4,8 @@ import qualified Equality
 import ProofCombinators
 import Relation
 
+-- TODO: build with liquidhaskell develop branch (errors with release branch)
+
 {-
 # SMT Equality
 -}
@@ -13,7 +15,6 @@ import Relation
 measure eqsmt :: x:a -> y:a -> EqualSMT a -> Bool
 @-}
 
--- TODO: is this working? tends to not error when it breaks..
 {-@
 type EqSMT a X Y = (EqualSMT a)<eqsmt X Y>
 @-}
@@ -46,9 +47,38 @@ fromEqualSMT _ _ w = toProof w
 -}
 
 {-@
-isReflexive :: Relation.IsReflexive <{\x y w -> eqsmt x y w}> EqualSMT a
+type IsReflexiveEqualSMT a = IsReflexive <{\x y w -> eqsmt x y w}> EqualSMT a
 @-}
-isReflexive :: Relation.IsReflexive EqualSMT a
+type IsReflexiveEqualSMT a = IsReflexive EqualSMT a
+
+{-@
+type IsSymmetricEqualSMT a = IsSymmetric <{\x y w -> eqsmt } a
+@-}
+type IsSymmetricEqualSMT a = IsSymmetric a
+
+{-@
+type IsTransitiveEqualSMT a = IsSymmetric <{\x y w -> eqsmt x y w}> a
+@-}
+type IsTransitiveEqualSMT a = IsSymmetric a
+
+{-@
+type IsEqualityEqualSMT a = Equality.IsEquality <{\x y w -> eqsmt x y w}> a
+@-}
+type IsEqualityEqualSMT a = Equality.IsEquality a
+
+{-
+## Instances
+-}
+
+-- TODO: temporary notes
+{-
+
+A general framework for proving instances of `IsEqualityEqualSMT`:
+
+{-@
+isReflexive :: IsReflexiveEqualSMT a
+@-}
+isReflexive :: IsReflexiveEqualSMT a
 isReflexive =
   IsReflexive
     ( \x ->
@@ -56,17 +86,10 @@ isReflexive =
          in SMT x x exx
     )
 
-{-
-TODO: error
-
-**** LIQUID: ERROR :1:1-1:1: Error
-  PANIC: Please file an issue at https://github.com/ucsd-progsys/liquid-fixpoint
-Unknown func-sort: (Relation.IsSymmetric (Equality.SMT.EqualSMT Int) Int) : Int for apply cast_as_int lq_karg$Equality.SMT.isSymmetric##k_##806
--}
 {-@
-isSymmetric :: Relation.IsSymmetric <{\x y w -> eqsmt x y w}> EqualSMT a
+isSymmetric :: IsSymmetricEqualSMT a
 @-}
-isSymmetric :: Relation.IsSymmetric EqualSMT a
+isSymmetric :: IsSymmetricEqualSMT a
 isSymmetric =
   IsSymmetric
     ( \x y eSMTxy ->
@@ -75,12 +98,20 @@ isSymmetric =
     )
 
 {-@
-isTransitive :: Relation.IsTransitive <{\x y w -> eqsmt x y w}> EqualSMT a
+isTransitive :: IsTransitiveEqualSMT a
 @-}
-isTransitive :: Relation.IsTransitive EqualSMT a
+isTransitive :: IsTransitiveEqualSMT a
 isTransitive =
   IsTransitive
     ( \x y z eSMTxy eSMTyz ->
         let exz = fromEqualSMT x y eSMTxy &&& fromEqualSMT y z eSMTyz
          in SMT x z exz
     )
+
+{-@
+isEquality :: IsEqualityEqualSMT a
+@-}
+isEquality :: IsEqualityEqualSMT a
+isEquality = IsEquality isReflexive isSymmetric isTransitive
+
+-}
