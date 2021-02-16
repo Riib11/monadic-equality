@@ -18,9 +18,8 @@ An equality is encoded by
 
 {-@
 data IsEquality e a <eq :: a -> a -> e a -> Bool> = IsEquality
-  { isReflexive :: IsReflexive <eq> e a ,
-    isSymmetric :: IsSymmetric <eq> e a ,
-    isTransitive :: IsTransitive <eq> e a
+  { isReflexive :: IsReflexive <eq> e a,
+    isSymmetric :: IsSymmetric <eq> e a 
   }
 @-}
 data IsEquality e a

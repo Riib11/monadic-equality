@@ -1,8 +1,10 @@
 module Equality.SMT where
 
-import qualified Equality
+import Equality
 import ProofCombinators
 import Relation
+
+-- TODO: build with liquidhaskell develop branch (errors with release branch)
 
 {-
 # SMT Equality
@@ -13,7 +15,6 @@ import Relation
 measure eqsmt :: x:a -> y:a -> EqualSMT a -> Bool
 @-}
 
--- TODO: is this working? tends to not error when it breaks..
 {-@
 type EqSMT a X Y = (EqualSMT a)<eqsmt X Y>
 @-}
@@ -42,45 +43,53 @@ fromEqualSMT :: a -> a -> EqualSMT a -> Proof
 fromEqualSMT _ _ w = toProof w
 
 {-
-## Properties
+## Instances
 -}
-
-{-@
-isReflexive :: Relation.IsReflexive <{\x y w -> eqsmt x y w}> EqualSMT a
-@-}
-isReflexive :: Relation.IsReflexive EqualSMT a
-isReflexive =
-  IsReflexive
-    ( \x ->
-        let exx = trivial
-         in SMT x x exx
-    )
 
 {-
-TODO: error
-
-**** LIQUID: ERROR :1:1-1:1: Error
-  PANIC: Please file an issue at https://github.com/ucsd-progsys/liquid-fixpoint
-Unknown func-sort: (Relation.IsSymmetric (Equality.SMT.EqualSMT Int) Int) : Int for apply cast_as_int lq_karg$Equality.SMT.isSymmetric##k_##806
+### Bool
 -}
+
 {-@
-isSymmetric :: Relation.IsSymmetric <{\x y w -> eqsmt x y w}> EqualSMT a
+isReflexiveEqualSMT_Bool :: IsReflexive <{\x y w -> eqsmt x y w}> EqualSMT Bool
 @-}
-isSymmetric :: Relation.IsSymmetric EqualSMT a
-isSymmetric =
-  IsSymmetric
-    ( \x y eSMTxy ->
-        let eyx = fromEqualSMT x y eSMTxy
-         in SMT y x eyx
+isReflexiveEqualSMT_Bool :: IsReflexive EqualSMT Bool
+isReflexiveEqualSMT_Bool =
+  IsReflexive
+    ( \x ->
+        let e_x_x = trivial
+         in SMT x x e_x_x
     )
 
 {-@
-isTransitive :: Relation.IsTransitive <{\x y w -> eqsmt x y w}> EqualSMT a
+assume isSymmetricEqualSMT_Bool :: IsSymmetric <{\x y w -> eqsmt x y w}> EqualSMT Bool
 @-}
-isTransitive :: Relation.IsTransitive EqualSMT a
-isTransitive =
-  IsTransitive
-    ( \x y z eSMTxy eSMTyz ->
-        let exz = fromEqualSMT x y eSMTxy &&& fromEqualSMT y z eSMTyz
-         in SMT x z exz
+isSymmetricEqualSMT_Bool :: IsSymmetric EqualSMT Bool
+isSymmetricEqualSMT_Bool =
+  IsSymmetric
+    ( \x y eSMT_x_y ->
+        let e_y_x = fromEqualSMT x y eSMT_x_y
+         in SMT y x e_y_x
     )
+
+{-@
+assume isTransitiveEqualSMT_Bool :: IsTransitive <{\x y w -> eqsmt x y w}> EqualSMT Bool
+@-}
+isTransitiveEqualSMT_Bool :: IsTransitive EqualSMT Bool
+isTransitiveEqualSMT_Bool =
+  IsTransitive
+    ( \x y z eSMT_x_y eSMT_y_z ->
+        let e_x_y = fromEqualSMT x y eSMT_x_y
+            e_y_z = fromEqualSMT y z eSMT_y_z
+         in SMT x z (e_x_y &&& e_y_z)
+    )
+
+{-@
+assume isEqualityEqualSMT_Bool :: IsEquality <{\x y w -> eqsmt x y w}> EqualSMT Bool
+@-}
+isEqualityEqualSMT_Bool :: IsEquality EqualSMT Bool
+isEqualityEqualSMT_Bool =
+  IsEquality
+    isReflexiveEqualSMT_Bool
+    isSymmetricEqualSMT_Bool
+    isTransitiveEqualSMT_Bool
