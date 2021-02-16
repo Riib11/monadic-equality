@@ -1,9 +1,9 @@
 module Equality.Prop where
 
-import qualified Equality
-import qualified Equality.SMT
+import Equality
+import Equality.SMT
 import ProofCombinators
-import qualified Relation
+import Relation
 
 -- TODO: build with liquidhaskell develop branch
 
@@ -26,7 +26,7 @@ type EqProp a X Y = (EqualProp a)<eqprop X Y>
 data EqualProp :: * -> * where
     InjectSMT ::
       x:a -> y:a ->
-      Equality.SMT.EqSMT a {x} {y} ->
+      EqSMT a {x} {y} ->
       EqProp a {x} {y}
   | Extensionality ::
       f:(a -> b) -> g:(a -> b) ->
@@ -43,91 +43,104 @@ data EqualProp :: * -> * where
   Congruency :: a -> a -> (a -> b) -> EqualProp a -> EqualProp b
 
 {-
-## Properties
--}
-
-{-@
-type IsReflexive a = Relation.IsReflexive <{\x y w -> eqprop x y w}> EqualProp a
-@-}
-type IsReflexive a = Relation.IsReflexive EqualProp a
-
-{-@
-type IsSymmetric a = Relation.IsSymmetric <{\x y w -> eqprop x y w}> EqualProp a
-@-}
-type IsSymmetric a = Relation.IsSymmetric EqualProp a
-
-{-@
-type IsTransitive a = Relation.IsTransitive <{\x y w -> eqprop x y w}> EqualProp a
-@-}
-type IsTransitive a = Relation.IsTransitive EqualProp a
-
-{-
 ## Instances
 -}
 
 {-@
-isReflexive_base :: Equality.SMT.IsReflexive a -> IsReflexive a
+isReflexiveEqualProp_base ::
+  IsReflexive <{\x y w -> eqsmt x y w}> EqualSMT a ->
+  IsReflexive <{\x y w -> eqprop x y w}> EqualProp a
 @-}
-isReflexive_base :: Equality.SMT.IsReflexive a -> IsReflexive a
-
-isReflexive Equality.SMT.IsReflexive =
+isReflexiveEqualProp_base ::
+  IsReflexive EqualSMT a ->
+  IsReflexive EqualProp a
+isReflexiveEqualProp_base isReflexiveEqualSMT =
   IsReflexive
     ( \x ->
-        let eSMTxx = reflexivity Equality.SMT.IsReflexive x
-         in SMT x x eSMTxx
+        let eSMT_x_x = reflexivity isReflexiveEqualSMT x
+         in SMT x x eSMT_x_x
+    )
+
+{-@
+isReflexiveEqualProp_induct ::
+  IsReflexive <{\x y w -> eqprop x y w}> EqualProp b ->
+  IsReflexive <{\x y w -> eqprop x y w}> EqualProp (a -> b)
+@-}
+isReflexiveEqualProp_induct ::
+  IsReflexive EqualProp b ->
+  IsReflexive EqualProp (a -> b)
+isReflexiveEqualProp_induct isReflexiveEqualProp =
+  IsReflexive
+    ( \f ->
+        let eProp_fx_fx x =
+              let eSMT_x_x = reflexivity isReflexiveEqualProp x
+                  eProp_x_x = InjectSMT x x eSMT_x_x
+               in Congruency x x f eProp_x_x
+         in Extensionality f f eProp_fx_fx
     )
 
 -- TODO: implement
 {-@
-isReflexive_induct :: IsReflexive b -> IsReflexive (a -> b)
+isSymmetricEqualProp_base ::
+  IsSymmetric <{\x y w -> eqsmt x y w}> EqualSMT a ->
+  IsSymmetric <{\x y w -> eqprop x y w}> EqualProp a
 @-}
-isReflexive_induct :: IsReflexive b -> IsReflexive (a -> b)
-isReflexive_induct = undefined
-
--- TODO: implement
-{-@
-isSymmetricEqualProp_base :: Equality.SMT.IsSymmetric a -> IsSymmetric a
-@-}
-isSymmetricEqualProp_base :: Equality.SMT.IsSymmetric a -> IsSymmetric a
+isSymmetricEqualProp_base ::
+  IsSymmetric EqualSMT a ->
+  IsSymmetric EqualProp a
 isSymmetricEqualProp_base = undefined
 
 -- TODO: implement
 {-@
 isSymmetricEqualProp_induct ::
-  IsSymmetric b -> IsSymmetric (a -> b)
+  IsSymmetric <{\x y w -> eqprop x y w}> EqualProp b ->
+  IsSymmetric <{\x y w -> eqprop x y w}> EqualProp (a -> b)
 @-}
 isSymmetricEqualProp_induct ::
-  IsSymmetric b -> IsSymmetric (a -> b)
+  IsSymmetric EqualProp b ->
+  IsSymmetric EqualProp (a -> b)
 isSymmetricEqualProp_induct = undefined
 
 -- TODO: implement
 {-@
-isTransitiveEqualProp_base :: Equality.SMT.IsTransitive a -> IsTransitive a
+isTransitiveEqualProp_base ::
+  IsTransitive <{\x y w -> eqsmt x y w}> EqualSMT a ->
+  IsTransitive <{\x y w -> eqprop x y w}> EqualProp a
 @-}
-isTransitiveEqualProp_base :: Equality.SMT.IsTransitive a -> IsTransitive a
+isTransitiveEqualProp_base ::
+  IsTransitive EqualSMT a ->
+  IsTransitive EqualProp a
 isTransitiveEqualProp_base = undefined
 
 -- TODO: implement
 {-@
 isTransitiveEqualProp_induct ::
-  Equality.SMT.IsTransitive b -> IsTransitive (a -> b)
+  IsTransitive <{\x y w -> eqprop x y w}> EqualProp b ->
+  IsTransitive <{\x y w -> eqprop x y w}> EqualProp (a -> b)
 @-}
 isTransitiveEqualProp_induct ::
-  Equality.SMT.IsTransitive b -> IsTransitive (a -> b)
+  IsTransitive EqualProp b ->
+  IsTransitive EqualProp (a -> b)
 isTransitiveEqualProp_induct = undefined
 
 -- TODO: implement
 {-@
-isEqualityEqualProp_base :: Equality.SMT.IsEquality a -> IsEquality a
+isEqualityEqualProp_base ::
+  IsEquality <{\x y w -> eqsmt x y w}> EqualSMT a ->
+  IsEquality <{\x y w -> eqprop x y w}> EqualProp a
 @-}
-isEqualityEqualProp_base :: Equality.SMT.IsEquality a -> IsEquality a
+isEqualityEqualProp_base ::
+  IsEquality EqualSMT a ->
+  IsEquality EqualProp a
 isEqualityEqualProp_base = undefined
 
 -- TODO: implement
 {-@
 isEqualityEqualProp_induct ::
-  Equality.SMT.IsEquality b -> IsEquality (a -> b)
+  IsEquality <{\x y w -> eqprop x y w}> EqualProp b ->
+  IsEquality <{\x y w -> eqprop x y w}> EqualProp (a -> b)
 @-}
 isEqualityEqualProp_induct ::
-  Equality.SMT.IsEquality b -> IsEquality (a -> b)
+  IsEquality EqualProp b ->
+  IsEquality EqualProp (a -> b)
 isEqualityEqualProp_induct = undefined
