@@ -1,8 +1,8 @@
 module Equality.SMT where
 
-import qualified Equality
+import Equality
 import ProofCombinators
-import qualified Relation
+import Relation
 
 -- TODO: build with liquidhaskell develop branch (errors with release branch)
 
@@ -43,107 +43,53 @@ fromEqualSMT :: a -> a -> EqualSMT a -> Proof
 fromEqualSMT _ _ w = toProof w
 
 {-
-## Properties
--}
-
-{-@
-type IsReflexive a = Relation.IsReflexive<{\x y w -> eqsmt x y w}> EqualSMT a
-@-}
-type IsReflexive a = Relation.IsReflexive a
-
-{-@
-type IsSymmetric a = Relation.IsSymmetric <{\x y w -> eqsmt } a
-@-}
-type IsSymmetric a = Relation.IsSymmetric a
-
-{-@
-type IsTransitive a = Relation.IsTransitive <{\x y w -> eqsmt x y w}> a
-@-}
-type IsTransitive a = Relation.IsTransitive
-
-{-@
-type IsEquality a = Equality.IsEquality <{\x y w -> eqsmt x y w}> a
-@-}
-type IsEquality a = Equality.IsEquality a
-
-{-
 ## Instances
--}
-
--- TODO: temporary notes
-{-
-
-A general framework for proving instances of `IsEquality`:
-
-{-@
-isReflexive :: IsReflexive a
-@-}
-isReflexive :: IsReflexive a
-isReflexive =
-  IsReflexive
-    ( \x ->
-        let exx = trivial
-         in SMT x x exx
-    )
-
-{-@
-isSymmetric :: IsSymmetric a
-@-}
-isSymmetric :: IsSymmetric a
-isSymmetric =
-  IsSymmetric
-    ( \x y eSMTxy ->
-        let eyx = fromEqualSMT x y eSMTxy
-         in SMT y x eyx
-    )
-
-{-@
-isTransitive :: IsTransitive a
-@-}
-isTransitive :: IsTransitive a
-isTransitive =
-  IsTransitive
-    ( \x y z eSMTxy eSMTyz ->
-        let exz = fromEqualSMT x y eSMTxy &&& fromEqualSMT y z eSMTyz
-         in SMT x z exz
-    )
-
-{-@
-isEquality :: IsEquality a
-@-}
-isEquality :: IsEquality a
-isEquality = IsEquality isReflexive isSymmetric isTransitive
-
 -}
 
 {-
 ### Bool
 -}
 
--- TODO: implement
 {-@
-isReflexive_Bool :: IsReflexive Bool
+isReflexiveEqualSMT_Bool :: IsReflexive <{\x y w -> eqsmt x y w}> EqualSMT Bool
 @-}
-isReflexive_Bool :: IsReflexive Bool
-isReflexive_Bool = undefined
+isReflexiveEqualSMT_Bool :: IsReflexive EqualSMT Bool
+isReflexiveEqualSMT_Bool =
+  IsReflexive
+    ( \x ->
+        let e_x_x = trivial
+         in SMT x x e_x_x
+    )
 
--- TODO: implement
 {-@
-isSymmetric_Bool :: IsSymmetric Bool
+assume isSymmetricEqualSMT_Bool :: IsSymmetric <{\x y w -> eqsmt x y w}> EqualSMT Bool
 @-}
-isSymmetric_Bool :: IsSymmetric Bool
-isSymmetric_Bool = undefined
+isSymmetricEqualSMT_Bool :: IsSymmetric EqualSMT Bool
+isSymmetricEqualSMT_Bool =
+  IsSymmetric
+    ( \x y eSMT_x_y ->
+        let e_y_x = fromEqualSMT x y eSMT_x_y
+         in SMT y x e_y_x
+    )
 
--- TODO: implement
 {-@
-isTransitive_Bool :: IsTransitive Bool
+assume isTransitiveEqualSMT_Bool :: IsTransitive <{\x y w -> eqsmt x y w}> EqualSMT Bool
 @-}
-isTransitive_Bool :: IsTransitive Bool
-isTransitive_Bool = undefined
+isTransitiveEqualSMT_Bool :: IsTransitive EqualSMT Bool
+isTransitiveEqualSMT_Bool =
+  IsTransitive
+    ( \x y z eSMT_x_y eSMT_y_z ->
+        let e_x_y = fromEqualSMT x y eSMT_x_y
+            e_y_z = fromEqualSMT y z eSMT_y_z
+         in SMT x z (e_x_y &&& e_y_z)
+    )
 
--- TODO: implement
 {-@
-isEquality_Bool :: IsEquality Bool
+assume isEqualityEqualSMT_Bool :: IsEquality <{\x y w -> eqsmt x y w}> EqualSMT Bool
 @-}
-isEquality_Bool :: IsEquality Bool
-isEquality_Bool = undefined
+isEqualityEqualSMT_Bool :: IsEquality EqualSMT Bool
+isEqualityEqualSMT_Bool =
+  IsEquality
+    isReflexiveEqualSMT_Bool
+    isSymmetricEqualSMT_Bool
+    isTransitiveEqualSMT_Bool
