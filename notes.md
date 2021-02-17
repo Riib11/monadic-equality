@@ -1,4 +1,4 @@
-# NOTE
+# Notes
 
 Maybe propositional equality is enough to handle monads? Its true that the monad
 may be a function or not a function, but propositional equality handles both
