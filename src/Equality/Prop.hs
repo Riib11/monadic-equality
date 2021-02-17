@@ -42,6 +42,21 @@ data EqualProp :: * -> * where
   Extensionality :: (a -> b) -> (a -> b) -> (a -> EqualProp a) -> EqualProp a
   Congruency :: a -> a -> (a -> b) -> EqualProp a -> EqualProp b
 
+{-@
+toEqualProp :: x:a -> y:a -> EqSMT a {x} {y} -> EqProp a {x} {y}
+@-}
+toEqualProp :: a -> a -> EqualSMT a -> EqualProp a
+toEqualProp x y eSMT_x_y = InjectSMT
+
+-- TODO: must this be assumed?
+{-@
+assume fromEqualProp :: x:a -> y:a -> EpProp a {x} {y} -> EqSMT a {x} {y}
+@-}
+fromEqualProp :: a -> a -> IsEquality <{\x y w -> eqsmt x y w}> EqualSMT a -> EqualProp a -> EqualSMT a
+fromEqualProp x y isEqualityEqualSMT (InjectSMT _ _ eqSMT_x_y) = eqSMT_x_y
+-- TODO
+-- fromEqualProp x y isEqualityEqualSMT (Congruency _ _ c eqProp_cx_cy) = undefined
+
 {-
 ## Instances
 -}
@@ -88,7 +103,12 @@ isSymmetricEqualProp_base ::
 isSymmetricEqualProp_base ::
   IsSymmetric EqualSMT a ->
   IsSymmetric EqualProp a
-isSymmetricEqualProp_base = undefined
+isSymmetricEqualProp_base isSymmetricEqualSMT = undefined
+
+-- IsSymmetric (\x y eProp_x_y ->
+--   let
+
+--   )
 
 -- TODO: implement
 {-@
