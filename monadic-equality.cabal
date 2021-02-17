@@ -1,5 +1,11 @@
 cabal-version: 1.12
 
+-- This file has been generated from package.yaml by hpack version 0.33.0.
+--
+-- see: https://github.com/sol/hpack
+--
+-- hash: d36e4293812e4106b958b4857de4826bb8cd8ae82d303c113054a1d14de87f60
+
 name:           monadic-equality
 version:        0.1.0.0
 description:    Please see the README on GitHub at <https://github.com/githubuser/monadic-equality#readme>
@@ -21,10 +27,11 @@ source-repository head
 
 library
   exposed-modules:
-      Equality
-      Equality.SMT
       ProofCombinators
       Relation
+      Relation.Equality
+      Relation.Equality.Prop
+      Relation.Equality.SMT
   other-modules:
       Paths_monadic_equality
   hs-source-dirs:
