@@ -42,4 +42,4 @@ isTransitive :: IsEquality e a b -> IsTransitive e a
 isTransitive (IsEquality _ _ isTransitive_ _) = isTransitive_
 
 isSubstitutive :: forall e a b. IsEquality e a b -> IsEquality e b b -> IsSubstitutive e a b
-isSubstitutive = undefined
+isSubstitutive (IsEquality _ _ _ isSubstitutive_) = isSubstitutive_
