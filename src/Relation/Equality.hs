@@ -18,49 +18,51 @@ An equality is encoded by
 -}
 
 {-@
-data IsEquality e a <eq :: forall a. a -> a -> e a -> Bool> = IsEquality
+data IsEquality e a b <eq :: a -> a -> e a -> Bool, eqb :: b -> b -> r b -> Bool> = IsEquality
   { isReflexive :: IsReflexive <eq> e a,
     isSymmetric :: IsSymmetric <eq> e a,
-    isTransitive :: IsTransitive <eq> e a
+    isTransitive :: IsTransitive <eq> e a,
+    isSubstitutive :: IsEquality e b b -> IsSubstitutive <eq, eqb> e a b
   }
 @-}
-data IsEquality e a
+data IsEquality e a b
   = IsEquality
       (IsReflexive e a)
       (IsSymmetric e a)
       (IsTransitive e a)
-
--- isSubstitutive :: forall b. IsEquality <eq> e b -> IsSubstitutive <eq> e a b
--- (forall b. IsEquality e b -> IsSubstitutive e a b)
+      (IsEquality e b b -> IsSubstitutive e a b)
 
 {-@
 isReflexive ::
   forall <eq :: a -> a -> e a -> Bool>.
-  IsEquality <eq> e a -> IsReflexive <eq> e a
+  IsEquality <eq> e a b -> IsReflexive <eq> e a
 @-}
-isReflexive :: IsEquality e a -> IsReflexive e a
-isReflexive (IsEquality isReflexive_ _ _) = isReflexive_
+isReflexive :: IsEquality e a b -> IsReflexive e a
+isReflexive (IsEquality isReflexive_ _ _ _) = isReflexive_
 
 {-@
 isSymmetric ::
   forall <eq :: a -> a -> e a -> Bool>.
-  IsEquality <eq> e a -> IsSymmetric <eq> e a
+  IsEquality <eq> e a b -> IsSymmetric <eq> e a
 @-}
-isSymmetric :: IsEquality e a -> IsSymmetric e a
-isSymmetric (IsEquality _ isSymmetric_ _) = isSymmetric_
+isSymmetric :: IsEquality e a b -> IsSymmetric e a
+isSymmetric (IsEquality _ isSymmetric_ _ _) = isSymmetric_
 
 {-@
 isTransitive ::
   forall <eq :: a -> a -> e a -> Bool>.
-  IsEquality <eq> e a -> IsTransitive <eq> e a
+  IsEquality <eq> e a b -> IsTransitive <eq> e a
 @-}
-isTransitive :: IsEquality e a -> IsTransitive e a
-isTransitive (IsEquality _ _ isTransitive_) = isTransitive_
+isTransitive :: IsEquality e a b -> IsTransitive e a
+isTransitive (IsEquality _ _ isTransitive_ _) = isTransitive_
 
--- {-@
--- isSubstitutive ::
---   forall <eq :: forall a. a -> a -> e a -> Bool>.
---   IsEquality <eq> e a -> forall b. IsEquality <eq> e b -> IsSubstitutive <eq> e a b
--- @-}
--- isSubstitutive :: IsEquality e a -> forall b. IsEquality e b -> IsSubstitutive e a b
--- isSubstitutive (IsEquality _ _ _ isSubstitutive_) = isSubstitutive_
+{-@
+isSubstitutive ::
+  forall a b <eq :: a -> a -> e a -> Bool, eqb :: b -> b -> e b -> Bool>.
+  IsEquality <eq> e a b ->
+  IsEquality <eqb> e b b ->
+  IsSubstitutive <eq, eqb> e a b
+@-}
+isSubstitutive ::
+  IsEquality e a b -> IsEquality e b b -> IsSubstitutive e a b
+isSubstitutive (IsEquality _ _ _ isSubstitutive_) = undefined -- isSubstitutive_

@@ -64,12 +64,12 @@ transitivity (IsTransitive transitivity_) = transitivity_
 
 -- x ~ y  =>  f x ~ f y
 {-@
-data IsSubstitutive r a b <re :: forall c. c -> c -> r c -> Bool> =
+data IsSubstitutive r a b <re :: a -> a -> r a -> Bool, reb :: b -> b -> r b -> Bool> =
   IsSubstitutive
     { substitution ::
         x:a -> y:a -> c:(a -> b) ->
         (r a) <re x y> ->
-        (r b) <re (c x) (c y)>
+        (r b) <reb (c x) (c y)>
     }
 @-}
 data IsSubstitutive r a b = IsSubstitutive (a -> a -> (a -> b) -> r a -> r b)
