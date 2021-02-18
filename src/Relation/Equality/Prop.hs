@@ -33,7 +33,7 @@ import Relation.Equality.SMT
 --   | Substitution ::
 --       x:a -> y:a -> c:(a -> b) ->
 --       EqProp a {x} {y} ->
---       EqProp b {f x} {f y}
+--       EqProp b {c x} {c y}
 -- @-}
 -- data EqualProp :: * -> * where
 --   InjectSMT :: a -> a -> EqualSMT a -> EqualProp a
