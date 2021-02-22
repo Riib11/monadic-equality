@@ -3,7 +3,7 @@ module Relation.Equality.SMT where
 import ProofCombinators
 
 {-
-# FromPrim Equality
+# SMT Equality
 -}
 
 {-@
