@@ -48,14 +48,18 @@ fromEqualSMT _ _ w = toProof w
 ### Bool
 -}
 
+-- TODO: is this necessary?
 {-@
-assume eqsmt_Bool :: x:Bool -> y:Bool -> w:EqualSMT Bool -> {v:Bool | v <=> eqsmt x y w}
+assume eqsmt_Bool ::
+  x:Bool -> y:Bool -> w:EqualSMT Bool ->
+  {v:Bool | v <=> eqsmt x y w}
 @-}
 eqsmt_Bool :: Bool -> Bool -> EqualSMT Bool -> Bool
-eqsmt_Bool x y w = x == y
+eqsmt_Bool x y _ = x == y
 
 {-@
-isReflexiveEqualSMT_Bool :: IsReflexive <{\x y w -> eqsmt x y w}> EqualSMT Bool
+isReflexiveEqualSMT_Bool ::
+  IsReflexive <{\x y w -> eqsmt x y w}> EqualSMT Bool
 @-}
 isReflexiveEqualSMT_Bool :: IsReflexive EqualSMT Bool
 isReflexiveEqualSMT_Bool =
@@ -66,7 +70,8 @@ isReflexiveEqualSMT_Bool =
     )
 
 {-@
-assume isSymmetricEqualSMT_Bool :: IsSymmetric <{\x y w -> eqsmt x y w}> EqualSMT Bool
+assume isSymmetricEqualSMT_Bool ::
+  IsSymmetric <{\x y w -> eqsmt x y w}> EqualSMT Bool
 @-}
 isSymmetricEqualSMT_Bool :: IsSymmetric EqualSMT Bool
 isSymmetricEqualSMT_Bool =
@@ -77,7 +82,8 @@ isSymmetricEqualSMT_Bool =
     )
 
 {-@
-assume isTransitiveEqualSMT_Bool :: IsTransitive <{\x y w -> eqsmt x y w}> EqualSMT Bool
+assume isTransitiveEqualSMT_Bool ::
+  IsTransitive <{\x y w -> eqsmt x y w}> EqualSMT Bool
 @-}
 isTransitiveEqualSMT_Bool :: IsTransitive EqualSMT Bool
 isTransitiveEqualSMT_Bool =
@@ -98,25 +104,36 @@ PANIC: Please file an issue at https://github.com/ucsd-progsys/liquid-fixpoint
 Unknown func-sort: (Relation.Equality.SMT.EqualSMT Bool) : (Relation.Equality.SMT.EqualSMT Int) for ()
 -}
 
-{-@
-assume isSubstitutiveEqualSMT_Bool ::
-  IsEquality <{\x y w -> eqsmt x y w}> EqualSMT a  ->
-  IsSubstitutive <{\x y w -> eqsmt x y w}> EqualSMT Bool a
-@-}
-isSubstitutiveEqualSMT_Bool :: IsEquality EqualSMT a -> IsSubstitutive EqualSMT Bool a
-isSubstitutiveEqualSMT_Bool isEquality =
-  constructIsSubstitutive
-    ( \x y c eSMT_x_y ->
-        let e_x_y = fromEqualSMT x y eSMT_x_y
-            e_cx_cy = eSMT_isSubstitutive x y c e_x_y
-         in SMT (c x) (c y) undefined
-    )
+-- TODO
+-- {-@
+-- assume isSubstitutiveEqualSMT_Bool ::
+--   forall <eq :: a -> a -> e a -> Bool>.
+--   IsEquality <{\x y w -> eq x y w}> e a ->
+--   IsSubstitutive <{\x y w -> eqsmt x y w}> EqualSMT Bool a
+-- @-}
+-- isSubstitutiveEqualSMT_Bool ::
+--   IsEquality EqualSMT a -> IsSubstitutive EqualSMT Bool a
+-- isSubstitutiveEqualSMT_Bool isEquality =
+--   constructIsSubstitutive
+--     ( \x y c eSMT_x_y ->
+--         let e_x_y = fromEqualSMT x y eSMT_x_y
+--             e_cx_cy = eSMT_isSubstitutive x y c e_x_y
+--          in SMT (c x) (c y) undefined
+--     )
 
 {-@
 eSMT_isSubstitutive :: x:a -> y:a -> c:(a -> b) -> {_:Proof | x = y} -> {_:Proof | c x = c y}
 @-}
 eSMT_isSubstitutive :: a -> a -> (a -> b) -> Proof -> Proof
 eSMT_isSubstitutive x y c hyp = hyp
+
+-- {-@
+-- assume isEqualityEqualSMT_Bool ::
+--   IsEquality <{\x y w -> eqsmt x y w}> EqualSMT Bool
+-- @-}
+-- isEqualityEqualSMT_Bool :: IsEquality EqualSMT Bool
+
+-- isEqualityEqualSMT_Bool
 
 -- {-@
 -- assume isEqualityEqualSMT_Bool :: IsEquality <{\x y w -> eqsmt x y w}> EqualSMT Bool

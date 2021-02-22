@@ -91,24 +91,31 @@ transitivity _ = undefined
 
 -- x ~ y  =>  f x ~ f y
 {-@
-data IsSubstitutive r a b <re :: a -> a -> r a -> Bool, reb :: b -> b -> r b -> Bool> = IsSubstitutive
+data IsSubstitutive
+  r1 r2 a1 a2 <re1 :: a1 -> a1 -> r1 a1 -> Bool, re2 :: a2 -> a2 -> r2 a2 -> Bool> = IsSubstitutive
 @-}
-data IsSubstitutive (r :: * -> *) a b = IsSubstitutive
+data IsSubstitutive (r1 :: * -> *) (r2 :: * -> *) a1 a2 = IsSubstitutive
 
 {-@
 assume constructIsSubstitutive ::
-  forall <rea :: a -> a -> r a -> Bool, reb :: b -> b -> r b -> Bool>.
-  (x:a -> y:a -> c:(a -> b) -> (r a) <rea x y> -> (r b) <reb (c x) (c y)>) ->
-  IsSubstitutive r a b
+  forall r1 r2 a1 a2 <re1 :: a1 -> a1 -> r1 a1 -> Bool, re2 :: a2 -> a2 -> r2 a2 -> Bool>.
+  (x:a1 -> y:a1 -> c:(a1 -> a2) -> (r1 a1) <r1 x y> -> (r2 a2) <re2 (c x) (c y)>) ->
+  IsSubstitutive <re1, re2> r1 r2 a1 a2
 @-}
-constructIsSubstitutive :: (a -> a -> (a -> b) -> r a -> r b) -> IsSubstitutive r a b
+constructIsSubstitutive ::
+  forall r1 r2 a1 a2.
+  (a1 -> a1 -> (a1 -> a2) -> r1 a1 -> r2 a2) ->
+  IsSubstitutive r1 r2 a1 a2
 constructIsSubstitutive _ = undefined
 
 {-@
 assume substitution ::
-  forall <rea :: a -> a -> r a -> Bool, reb :: b -> b -> r b -> Bool>.
-  IsSubstitutive r a b ->
-  (x:a -> y:a -> c:(a -> b) -> (r a) <rea x y> -> (r b) <reb (c x) (c y)>)
+  forall r1 r2 a1 a2 <re1 :: a1 -> a1 -> r1 a1 -> Bool, re2 :: a2 -> a2 -> r2 a2 -> Bool>.
+  IsSubstitutive <re1, re2> r1 r2 a1 a2 ->
+  (x:a1 -> y:a1 -> c:(a1 -> a2) -> (r1 a1) <r1 x y> -> (r2 a2) <re2 (c x) (c y)>)
 @-}
-substitution :: IsSubstitutive r a b -> (a -> a -> (a -> b) -> r a -> r b)
+substitution ::
+  forall r1 r2 a1 a2.
+  IsSubstitutive r1 r2 a1 a2 ->
+  (a1 -> a1 -> (a1 -> a2) -> r1 a1 -> r2 a2)
 substitution _ = undefined
