@@ -1,147 +1,122 @@
 module Relation.Equality.SMT where
 
 import ProofCombinators
-import Relation
-import Relation.Equality
 
 {-
-# SMT Equality
+# FromPrim Equality
 -}
 
--- Measure. Proxy for built-in SMT equality.
 {-@
-measure eqsmt :: x:a -> y:a -> EqualSMT a -> Bool
+measure eqsmt :: a -> a -> EqualitySMT a -> Bool
 @-}
 
 {-@
-type EqSMT a X Y = (EqualSMT a)<eqsmt X Y>
+type EqualSMT a X Y = {w:EqualitySMT a | eqsmt X Y w}
 @-}
 
 {-@
-data EqualSMT :: * -> * where
-  SMT ::
-    x:a -> y:a ->
-    {_:Proof | x = y} ->
-    EqSMT a {x} {y}
+data EqualitySMT :: * -> * where
+  FromPrim :: EqSMT a => x:a -> y:a -> {_:Proof | x = y} -> EqualSMT a {x} {y}
 @-}
-data EqualSMT :: * -> * where
-  SMT :: a -> a -> Proof -> EqualSMT a
+data EqualitySMT :: * -> * where
+  FromPrim :: EqSMT a => a -> a -> Proof -> EqualitySMT a
 
-{-@
-toEqualSMT :: x:a -> y:a -> {_:Proof | x = y} -> EqSMT a {x} {y}
-@-}
-toEqualSMT :: a -> a -> Proof -> EqualSMT a
-toEqualSMT = SMT
-
--- TODO: must this be assumed?
-{-@
-assume fromEqualSMT :: x:a -> y:a -> EqSMT a {x} {y} -> {x = y}
-@-}
-fromEqualSMT :: a -> a -> EqualSMT a -> Proof
-fromEqualSMT _ _ w = toProof w
-
-{-
-## Instances
--}
-
-{-
-### Bool
--}
-
--- TODO: is this necessary?
-{-@
-assume eqsmt_Bool ::
-  x:Bool -> y:Bool -> w:EqualSMT Bool ->
-  {v:Bool | v <=> eqsmt x y w}
-@-}
-eqsmt_Bool :: Bool -> Bool -> EqualSMT Bool -> Bool
-eqsmt_Bool x y _ = x == y
-
-{-@
-isReflexiveEqualSMT_Bool ::
-  IsReflexive <{\x y w -> eqsmt x y w}> EqualSMT Bool
-@-}
-isReflexiveEqualSMT_Bool :: IsReflexive EqualSMT Bool
-isReflexiveEqualSMT_Bool =
-  constructIsReflexive
-    ( \x ->
-        let e_x_x = trivial
-         in SMT x x e_x_x
-    )
-
-{-@
-assume isSymmetricEqualSMT_Bool ::
-  IsSymmetric <{\x y w -> eqsmt x y w}> EqualSMT Bool
-@-}
-isSymmetricEqualSMT_Bool :: IsSymmetric EqualSMT Bool
-isSymmetricEqualSMT_Bool =
-  constructIsSymmetric
-    ( \x y eSMT_x_y ->
-        let e_y_x = fromEqualSMT x y eSMT_x_y
-         in SMT y x e_y_x
-    )
-
-{-@
-assume isTransitiveEqualSMT_Bool ::
-  IsTransitive <{\x y w -> eqsmt x y w}> EqualSMT Bool
-@-}
-isTransitiveEqualSMT_Bool :: IsTransitive EqualSMT Bool
-isTransitiveEqualSMT_Bool =
-  constructIsTransitive
-    ( \x y z eSMT_x_y eSMT_y_z ->
-        let e_x_y = fromEqualSMT x y eSMT_x_y
-            e_y_z = fromEqualSMT y z eSMT_y_z
-         in SMT x z (e_x_y &&& e_y_z)
-    )
-
-{-
-TODO: error
-
-Giving `e_cx_cy` in place of `undefined` below yields this liquid error:
-
-**** LIQUID: ERROR :1:1-1:1: Error
-PANIC: Please file an issue at https://github.com/ucsd-progsys/liquid-fixpoint
-Unknown func-sort: (Relation.Equality.SMT.EqualSMT Bool) : (Relation.Equality.SMT.EqualSMT Int) for ()
--}
-
--- TODO
+-- TODO: dont think i actually need this
 -- {-@
--- assume isSubstitutiveEqualSMT_Bool ::
---   forall <eq :: a -> a -> e a -> Bool>.
---   IsEquality <{\x y w -> eq x y w}> e a ->
---   IsSubstitutive <{\x y w -> eqsmt x y w}> EqualSMT Bool a
+-- data EqualitySMT :: * -> * where
+--     FromPrim :: EqSMT a => x:a -> y:a -> {_:Proof | x = y} -> EqualSMT a {x} {y}
+--   | SubstitutitivitySMT :: (EqSMT a, EqSMT b) -> x:a -> y:a -> c:(a -> b) -> EqualSMT a {x} {y} -> EqualSMT a {c x} {c y}
 -- @-}
--- isSubstitutiveEqualSMT_Bool ::
---   IsEquality EqualSMT a -> IsSubstitutive EqualSMT Bool a
--- isSubstitutiveEqualSMT_Bool isEquality =
---   constructIsSubstitutive
---     ( \x y c eSMT_x_y ->
---         let e_x_y = fromEqualSMT x y eSMT_x_y
---             e_cx_cy = eSMT_isSubstitutive x y c e_x_y
---          in SMT (c x) (c y) undefined
---     )
+-- data EqualitySMT :: * -> * where
+--   FromPrim :: EqSMT a => a -> a -> Proof -> EqualitySMT a
+--   SubstitutitivitySMT :: (EqSMT a, EqSMT b) => a -> a -> (a -> b) -> EqualitySMT a -> EqualitySMT b
 
 {-@
-eSMT_isSubstitutive :: x:a -> y:a -> c:(a -> b) -> {_:Proof | x = y} -> {_:Proof | c x = c y}
+toEqualitySMT ::
+  EqSMT a =>
+  x:a -> y:a ->
+  {_:Proof | x = y} ->
+  {w:EqualitySMT a | eqsmt x y w}
 @-}
-eSMT_isSubstitutive :: a -> a -> (a -> b) -> Proof -> Proof
-eSMT_isSubstitutive x y c hyp = hyp
+toEqualitySMT :: EqSMT a => a -> a -> Proof -> EqualitySMT a
+toEqualitySMT x y e = FromPrim x y e
 
--- {-@
--- assume isEqualityEqualSMT_Bool ::
---   IsEquality <{\x y w -> eqsmt x y w}> EqualSMT Bool
--- @-}
--- isEqualityEqualSMT_Bool :: IsEquality EqualSMT Bool
+{-@
+class EqSMT a where
+  fromEqualitySMT :: x:a -> y:a -> EqualSMT a {x} {y} -> {_:Proof | x = y}
+@-}
+class EqSMT a where
+  fromEqualitySMT :: a -> a -> EqualitySMT a -> Proof
 
--- isEqualityEqualSMT_Bool
+{-
+## Properties
+-}
 
--- {-@
--- assume isEqualityEqualSMT_Bool :: IsEquality <{\x y w -> eqsmt x y w}> EqualSMT Bool
--- @-}
--- isEqualityEqualSMT_Bool :: IsEquality EqualSMT Bool
--- isEqualityEqualSMT_Bool =
---   constructIsEquality
---     isReflexiveEqualSMT_Bool
---     isSymmetricEqualSMT_Bool
---     isTransitiveEqualSMT_Bool
---     isSubstitutiveEqualSMT_Bool
+{-@
+reflexivityEqualitySMT ::
+  EqSMT a =>
+  x:a ->
+  EqualSMT a {x} {x}
+@-}
+reflexivityEqualitySMT ::
+  EqSMT a => a -> EqualitySMT a
+reflexivityEqualitySMT x =
+  let e_x_x = trivial
+   in FromPrim x x e_x_x
+
+{-@
+symmetricEqualityPrim :: x:a -> y:a -> {_:Proof | x = y} -> {_:Proof | y = x}
+@-}
+symmetricEqualityPrim :: a -> a -> Proof -> Proof
+symmetricEqualityPrim x y e = e
+
+{-@
+symmetricEqualitySMT ::
+  EqSMT a =>
+  x:a -> y:a ->
+  EqualSMT a {x} {y} ->
+  EqualSMT a {y} {x}
+@-}
+symmetricEqualitySMT ::
+  EqSMT a => a -> a -> EqualitySMT a -> EqualitySMT a
+symmetricEqualitySMT x y eSMT_x_y =
+  let e_x_y = fromEqualitySMT x y eSMT_x_y
+      e_y_x = symmetricEqualityPrim x y e_x_y
+   in FromPrim y x e_y_x
+
+{-@
+transitiveEqualitySMT ::
+  EqSMT a =>
+  x:a -> y:a -> z:a ->
+  EqualSMT a {x} {y} ->
+  EqualSMT a {y} {z} ->
+  EqualSMT a {x} {z}
+@-}
+transitiveEqualitySMT ::
+  EqSMT a => a -> a -> a -> EqualitySMT a -> EqualitySMT a -> EqualitySMT a
+transitiveEqualitySMT x y z eSMT_x_y eSMT_y_z =
+  let e_x_y = fromEqualitySMT x y eSMT_x_y
+      e_y_z = fromEqualitySMT y z eSMT_y_z
+      e_x_z = e_x_y &&& e_y_z
+   in FromPrim x z e_x_z
+
+{-@
+substitutivePrim ::
+  x:a -> y:a -> c:(a -> b) -> {_:Proof | x = y} -> {_:Proof | c x = c y}
+@-}
+substitutivePrim :: a -> a -> (a -> b) -> Proof -> Proof
+substitutivePrim x y c e = e
+
+{-@
+substitutiveSMT ::
+  (EqSMT a, EqSMT b) =>
+  x:a -> y:a -> c:(a -> b) ->
+  EqualSMT a {x} {y} ->
+  EqualSMT b {c x} {c y}
+@-}
+substitutiveSMT ::
+  (EqSMT a, EqSMT b) => a -> a -> (a -> b) -> EqualitySMT a -> EqualitySMT b
+substitutiveSMT x y c eSMT_x_y =
+  let e_x_y = fromEqualitySMT x y eSMT_x_y
+      e_cx_cy = substitutivePrim x y c e_x_y
+   in FromPrim (c x) (c y) e_cx_cy
