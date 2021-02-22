@@ -67,74 +67,66 @@ fromEqualityExtensional f g eProp_f_g x = case eProp_f_g of
   Extensionality _ _ eProp_fx_gx -> eProp_fx_gx x
   _ -> undefined -- "impossible"
 
-{-
-TODO:
+{-@
+class Reflexive_EqualityProp a where
+  reflexivity_EqualityProp :: x:a -> EqualProp a {x} {x}
+@-}
+class Reflexive_EqualityProp a where
+  reflexivity_EqualityProp :: a -> EqualityProp a
 
-- symmetry
-- transitivity
-- substitutivity
--}
+instance EqSMT a => Reflexive_EqualityProp a where
+  reflexivity_EqualityProp x = FromSMT x x (FromPrim x x trivial)
+
+instance Reflexive_EqualityProp b => Reflexive_EqualityProp (a -> b) where
+  reflexivity_EqualityProp f =
+    Extensionality f f (\x -> reflexivity_EqualityProp (f x))
 
 {-@
-class ReflexiveEqualityProp a where
-  reflexivityEqualityProp :: x:a -> EqualProp a {x} {x}
+class Symmetric_EqualityProp a where
+  symmetry_EqualityProp :: x:a -> y:a -> EqualProp a {x} {y} -> EqualProp a {y} {x}
 @-}
-class ReflexiveEqualityProp a where
-  reflexivityEqualityProp :: a -> EqualityProp a
+class Symmetric_EqualityProp a where
+  symmetry_EqualityProp :: a -> a -> EqualityProp a -> EqualityProp a
 
-instance EqSMT a => ReflexiveEqualityProp a where
-  reflexivityEqualityProp x = FromSMT x x (FromPrim x x trivial)
-
-instance ReflexiveEqualityProp b => ReflexiveEqualityProp (a -> b) where
-  reflexivityEqualityProp f =
-    Extensionality f f (\x -> reflexivityEqualityProp (f x))
-
-{-@
-class SymmetricEqualityProp a where
-  symmetryEqualityProp :: x:a -> y:a -> EqualProp a {x} {y} -> EqualProp a {y} {x}
-@-}
-class SymmetricEqualityProp a where
-  symmetryEqualityProp :: a -> a -> EqualityProp a -> EqualityProp a
-
-instance EqSMT a => SymmetricEqualityProp a where
-  symmetryEqualityProp x y eProp_x_y =
+instance EqSMT a => Symmetric_EqualityProp a where
+  symmetry_EqualityProp x y eProp_x_y =
     let eSMT_x_y = fromEqualityProp x y eProp_x_y
-        eSMT_y_x = symmetryEqualitySMT x y eSMT_x_y
+        eSMT_y_x = symmetry_EqualitySMT x y eSMT_x_y
      in FromSMT y x eSMT_y_x
 
-instance SymmetricEqualityProp b => SymmetricEqualityProp (a -> b) where
-  symmetryEqualityProp f g eProp_f_g =
+instance Symmetric_EqualityProp b => Symmetric_EqualityProp (a -> b) where
+  symmetry_EqualityProp f g eProp_f_g =
     let eProp_fx_gx = fromEqualityExtensional f g eProp_f_g
-        eProp_gx_fx x = symmetryEqualityProp (f x) (g x) (eProp_fx_gx x)
+        eProp_gx_fx x = symmetry_EqualityProp (f x) (g x) (eProp_fx_gx x)
      in Extensionality g f eProp_gx_fx
 
 {-@
-class TransitiveEqualityProp a where
-  transitivityEqualityProp :: x:a -> y:a -> z:a -> EqualProp a {x} {y} -> EqualProp a {y} {z} -> EqualProp a {x} {z}
+class Transitive_EqualityProp a where
+  transitivity_EqualityProp :: x:a -> y:a -> z:a -> EqualProp a {x} {y} -> EqualProp a {y} {z} -> EqualProp a {x} {z}
 @-}
-class TransitiveEqualityProp a where
-  transitivityEqualityProp :: a -> a -> a -> EqualityProp a -> EqualityProp a -> EqualityProp a
+class Transitive_EqualityProp a where
+  transitivity_EqualityProp :: a -> a -> a -> EqualityProp a -> EqualityProp a -> EqualityProp a
 
-instance EqSMT a => TransitiveEqualityProp a where
-  transitivityEqualityProp x y z eProp_x_y eProp_y_z =
+instance EqSMT a => Transitive_EqualityProp a where
+  transitivity_EqualityProp x y z eProp_x_y eProp_y_z =
     let eSMT_x_y = fromEqualityProp x y eProp_x_y
         eSMT_y_z = fromEqualityProp y z eProp_y_z
-        eSMT_x_z = transitivityEqualitySMT x y z eSMT_x_y eSMT_y_z
+        eSMT_x_z = transitivity_EqualitySMT x y z eSMT_x_y eSMT_y_z
      in FromSMT x z eSMT_x_z
 
-instance TransitiveEqualityProp b => TransitiveEqualityProp (a -> b) where
-  transitivityEqualityProp f g h eProp_f_g eProp_g_h =
+instance Transitive_EqualityProp b => Transitive_EqualityProp (a -> b) where
+  transitivity_EqualityProp f g h eProp_f_g eProp_g_h =
     let eSMT_fx_gx = fromEqualityExtensional f g eProp_f_g
         eSMT_gx_hx = fromEqualityExtensional g h eProp_g_h
-        eSMT_fx_hx x = transitivityEqualityProp (f x) (g x) (h x) (eSMT_fx_gx x) (eSMT_gx_hx x)
+        eSMT_fx_hx x = transitivity_EqualityProp (f x) (g x) (h x) (eSMT_fx_gx x) (eSMT_gx_hx x)
      in Extensionality f h eSMT_fx_hx
 
 {-@
-class SubstitutitiveEqualityProp a where
-  substitutivityEqualityProp :: forall b. x:a -> y:a -> c:(a -> b) -> EqualProp a {x} {y} -> EqualProp b {c x} {c y}
+class Substitutitive_EqualityProp a where
+  substitutivity_EqualityProp :: forall b. x:a -> y:a -> c:(a -> b) -> EqualProp a {x} {y} -> EqualProp b {c x} {c y}
 @-}
-class SubstitutitiveEqualityProp a where
-  substitutivityEqualityProp :: forall b. a -> a -> (a -> b) -> EqualityProp a -> EqualityProp b
+class Substitutitive_EqualityProp a where
+  substitutivity_EqualityProp :: forall b. a -> a -> (a -> b) -> EqualityProp a -> EqualityProp b
 
-instance SubstitutitiveEqualityProp a where
-  substitutivityEqualityProp x y c eProp_x_y = Substitutivity x y c eProp_x_y
+instance Substitutitive_EqualityProp a where
+  substitutivity_EqualityProp x y c eProp_x_y = Substitutivity x y c eProp_x_y

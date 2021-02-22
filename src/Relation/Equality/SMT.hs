@@ -52,13 +52,13 @@ class EqSMT a where
 
 {-@
 class Reflexive_EqualitySMT a where
-  reflexivity_EqualitySMT_ :: x:a -> EqualSMT a {x} {x}
+  reflexivity_EqualitySMT :: x:a -> EqualSMT a {x} {x}
 @-}
 class Reflexive_EqualitySMT a where
-  reflexivity_EqualitySMT_ :: a -> EqualitySMT a
+  reflexivity_EqualitySMT :: a -> EqualitySMT a
 
 instance EqSMT a => Reflexive_EqualitySMT a where
-  reflexivity_EqualitySMT_ x =
+  reflexivity_EqualitySMT x =
     let e_x_x = trivial
      in FromPrim x x e_x_x
 
@@ -68,13 +68,13 @@ instance EqSMT a => Reflexive_EqualitySMT a where
 
 {-@
 class Symmetric_EqualitySMT a where
-  symmetry_EqualitySMT_ :: x:a -> y:a -> EqualSMT a {x} {y} -> EqualSMT a {y} {x}
+  symmetry_EqualitySMT :: x:a -> y:a -> EqualSMT a {x} {y} -> EqualSMT a {y} {x}
 @-}
 class Symmetric_EqualitySMT a where
-  symmetry_EqualitySMT_ :: a -> a -> EqualitySMT a -> EqualitySMT a
+  symmetry_EqualitySMT :: a -> a -> EqualitySMT a -> EqualitySMT a
 
 instance EqSMT a => Symmetric_EqualitySMT a where
-  symmetry_EqualitySMT_ x y eSMT_x_y =
+  symmetry_EqualitySMT x y eSMT_x_y =
     let e_x_y = fromEqualitySMT x y eSMT_x_y
         e_y_x = symmetry_EqualityPrim x y e_x_y
      in FromPrim y x e_y_x
@@ -91,13 +91,13 @@ symmetry_EqualityPrim x y e_x_y = e_x_y
 
 {-@
 class Transitive_EqualitySMT a where
-  transitivity_EqualitySMT_ :: x:a -> y:a -> z:a -> EqualSMT a {x} {y} -> EqualSMT a {y} {z} -> EqualSMT a {x} {z}
+  transitivity_EqualitySMT :: x:a -> y:a -> z:a -> EqualSMT a {x} {y} -> EqualSMT a {y} {z} -> EqualSMT a {x} {z}
 @-}
 class Transitive_EqualitySMT a where
-  transitivity_EqualitySMT_ :: a -> a -> a -> EqualitySMT a -> EqualitySMT a -> EqualitySMT a
+  transitivity_EqualitySMT :: a -> a -> a -> EqualitySMT a -> EqualitySMT a -> EqualitySMT a
 
 instance EqSMT a => Transitive_EqualitySMT a where
-  transitivity_EqualitySMT_ x y z eSMT_x_y eSMT_y_z =
+  transitivity_EqualitySMT x y z eSMT_x_y eSMT_y_z =
     let e_x_y = fromEqualitySMT x y eSMT_x_y
         e_y_z = fromEqualitySMT y z eSMT_y_z
         e_x_z = e_x_y &&& e_y_z
@@ -109,13 +109,13 @@ instance EqSMT a => Transitive_EqualitySMT a where
 
 {-@
 class Substitutitive_EqualitySMT a b where
-  substitutivity_EqualitySMT_ :: x:a -> y:a -> c:(a -> b) -> EqualSMT a {x} {y} -> EqualSMT b {c x} {c y}
+  substitutivity_EqualitySMT :: x:a -> y:a -> c:(a -> b) -> EqualSMT a {x} {y} -> EqualSMT b {c x} {c y}
 @-}
 class Substitutitive_EqualitySMT a b where
-  substitutivity_EqualitySMT_ :: a -> a -> (a -> b) -> EqualitySMT a -> EqualitySMT b
+  substitutivity_EqualitySMT :: a -> a -> (a -> b) -> EqualitySMT a -> EqualitySMT b
 
 instance (EqSMT a, EqSMT b) => Substitutitive_EqualitySMT a b where
-  substitutivity_EqualitySMT_ x y c eSMT_x_y =
+  substitutivity_EqualitySMT x y c eSMT_x_y =
     let e_x_y = fromEqualitySMT x y eSMT_x_y
         e_cx_cy = substitutivity_Prim x y c e_x_y
      in FromPrim (c x) (c y) e_cx_cy
