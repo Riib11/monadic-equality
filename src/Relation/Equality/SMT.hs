@@ -26,11 +26,7 @@ data EqualitySMT :: * -> * where
   FromPrim :: EqSMT a => a -> a -> Proof -> EqualitySMT a
 
 {-@
-toEqualitySMT ::
-  EqSMT a =>
-  x:a -> y:a ->
-  {_:Proof | x = y} ->
-  {w:EqualitySMT a | eqsmt x y w}
+toEqualitySMT :: EqSMT a => x:a -> y:a -> {_:Proof | x = y} -> {w:EqualitySMT a | eqsmt x y w}
 @-}
 toEqualitySMT :: EqSMT a => a -> a -> Proof -> EqualitySMT a
 toEqualitySMT x y e = FromPrim x y e
