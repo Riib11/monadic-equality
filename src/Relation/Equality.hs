@@ -20,7 +20,7 @@ An equality is encoded by
 {-@
 data IsEquality e a <eq :: a -> a -> e a -> Bool> = IsEquality
 @-}
-data IsEquality e a = IsEquality
+data IsEquality (e :: * -> *) a = IsEquality
 
--- TODO
+-- {-@
 -- constructIsEquality ::
