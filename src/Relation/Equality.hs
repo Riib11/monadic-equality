@@ -18,28 +18,9 @@ An equality is encoded by
 -}
 
 {-@
-data IsEquality e a b <eq :: a -> a -> e a -> Bool, eqb :: b -> b -> e b -> Bool> = IsEquality
-  { isReflexive :: IsReflexive <eq> e a,
-    isSymmetric :: IsSymmetric <eq> e a,
-    isTransitive :: IsTransitive <eq> e a,
-    isSubstitutive :: IsEquality <eqb, eqb> e b b -> IsSubstitutive <eq, eqb> e a b
-  }
+data IsEquality e a <eq :: a -> a -> e a -> Bool> = IsEquality
 @-}
-data IsEquality e a b
-  = IsEquality
-      (IsReflexive e a)
-      (IsSymmetric e a)
-      (IsTransitive e a)
-      (IsEquality e b b -> IsSubstitutive e a b)
+data IsEquality e a = IsEquality
 
-isReflexive :: IsEquality e a b -> IsReflexive e a
-isReflexive (IsEquality isReflexive_ _ _ _) = isReflexive_
-
-isSymmetric :: IsEquality e a b -> IsSymmetric e a
-isSymmetric (IsEquality _ isSymmetric_ _ _) = isSymmetric_
-
-isTransitive :: IsEquality e a b -> IsTransitive e a
-isTransitive (IsEquality _ _ isTransitive_ _) = isTransitive_
-
-isSubstitutive :: forall e a b. IsEquality e a b -> IsEquality e b b -> IsSubstitutive e a b
-isSubstitutive (IsEquality _ _ _ isSubstitutive_) = isSubstitutive_
+-- TODO
+-- constructIsEquality ::
