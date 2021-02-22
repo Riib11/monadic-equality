@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 41ce02d5b16380133b58619af7236b786d8db232acac1ad085520c0f2d35689d
+-- hash: eaa1f0900dffc73268f047e5dd9ad5518cd13e4619fe5d69eccc4de5b3fb9288
 
 name:           monadic-equality
 version:        0.1.0.0
@@ -30,6 +30,7 @@ library
       ProofCombinators
       Relation
       Relation.Equality
+      Relation.Equality.Prim
       Relation.Equality.Prop
       Relation.Equality.Prop2
       Relation.Equality.SMT
