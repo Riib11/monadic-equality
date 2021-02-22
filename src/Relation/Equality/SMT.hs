@@ -6,6 +6,10 @@ import ProofCombinators
 # SMT Equality
 -}
 
+{-
+## Definition
+-}
+
 {-@
 measure eqsmt :: a -> a -> EqualitySMT a -> Bool
 @-}
@@ -20,16 +24,6 @@ data EqualitySMT :: * -> * where
 @-}
 data EqualitySMT :: * -> * where
   FromPrim :: EqSMT a => a -> a -> Proof -> EqualitySMT a
-
--- TODO: dont think i actually need this
--- {-@
--- data EqualitySMT :: * -> * where
---     FromPrim :: EqSMT a => x:a -> y:a -> {_:Proof | x = y} -> EqualSMT a {x} {y}
---   | SubstitutitivitySMT :: (EqSMT a, EqSMT b) -> x:a -> y:a -> c:(a -> b) -> EqualSMT a {x} {y} -> EqualSMT a {c x} {c y}
--- @-}
--- data EqualitySMT :: * -> * where
---   FromPrim :: EqSMT a => a -> a -> Proof -> EqualitySMT a
---   SubstitutitivitySMT :: (EqSMT a, EqSMT b) => a -> a -> (a -> b) -> EqualitySMT a -> EqualitySMT b
 
 {-@
 toEqualitySMT ::
@@ -52,71 +46,83 @@ class EqSMT a where
 ## Properties
 -}
 
-{-@
-reflexivityEqualitySMT ::
-  EqSMT a =>
-  x:a ->
-  EqualSMT a {x} {x}
-@-}
-reflexivityEqualitySMT ::
-  EqSMT a => a -> EqualitySMT a
-reflexivityEqualitySMT x =
-  let e_x_x = trivial
-   in FromPrim x x e_x_x
+{-
+### Reflexivity
+-}
 
 {-@
-symmetricEqualityPrim :: x:a -> y:a -> {_:Proof | x = y} -> {_:Proof | y = x}
+class Reflexive_EqualitySMT a where
+  reflexivity_EqualitySMT_ :: x:a -> EqualSMT a {x} {x}
 @-}
-symmetricEqualityPrim :: a -> a -> Proof -> Proof
-symmetricEqualityPrim x y e = e
+class Reflexive_EqualitySMT a where
+  reflexivity_EqualitySMT_ :: a -> EqualitySMT a
+
+instance EqSMT a => Reflexive_EqualitySMT a where
+  reflexivity_EqualitySMT_ x =
+    let e_x_x = trivial
+     in FromPrim x x e_x_x
+
+{-
+### Symmetry
+-}
 
 {-@
-symmetricEqualitySMT ::
-  EqSMT a =>
-  x:a -> y:a ->
-  EqualSMT a {x} {y} ->
-  EqualSMT a {y} {x}
+class Symmetric_EqualitySMT a where
+  symmetry_EqualitySMT_ :: x:a -> y:a -> EqualSMT a {x} {y} -> EqualSMT a {y} {x}
 @-}
-symmetricEqualitySMT ::
-  EqSMT a => a -> a -> EqualitySMT a -> EqualitySMT a
-symmetricEqualitySMT x y eSMT_x_y =
-  let e_x_y = fromEqualitySMT x y eSMT_x_y
-      e_y_x = symmetricEqualityPrim x y e_x_y
-   in FromPrim y x e_y_x
+class Symmetric_EqualitySMT a where
+  symmetry_EqualitySMT_ :: a -> a -> EqualitySMT a -> EqualitySMT a
+
+instance EqSMT a => Symmetric_EqualitySMT a where
+  symmetry_EqualitySMT_ x y eSMT_x_y =
+    let e_x_y = fromEqualitySMT x y eSMT_x_y
+        e_y_x = symmetry_EqualityPrim x y e_x_y
+     in FromPrim y x e_y_x
 
 {-@
-transitiveEqualitySMT ::
-  EqSMT a =>
-  x:a -> y:a -> z:a ->
-  EqualSMT a {x} {y} ->
-  EqualSMT a {y} {z} ->
-  EqualSMT a {x} {z}
+symmetry_EqualityPrim :: x:a -> y:a -> {_:Proof | x = y} -> {_:Proof | y = x}
 @-}
-transitiveEqualitySMT ::
-  EqSMT a => a -> a -> a -> EqualitySMT a -> EqualitySMT a -> EqualitySMT a
-transitiveEqualitySMT x y z eSMT_x_y eSMT_y_z =
-  let e_x_y = fromEqualitySMT x y eSMT_x_y
-      e_y_z = fromEqualitySMT y z eSMT_y_z
-      e_x_z = e_x_y &&& e_y_z
-   in FromPrim x z e_x_z
+symmetry_EqualityPrim :: a -> a -> Proof -> Proof
+symmetry_EqualityPrim x y e_x_y = e_x_y
+
+{-
+### Transitivity
+-}
 
 {-@
-substitutivePrim ::
+class Transitive_EqualitySMT a where
+  transitivity_EqualitySMT_ :: x:a -> y:a -> z:a -> EqualSMT a {x} {y} -> EqualSMT a {y} {z} -> EqualSMT a {x} {z}
+@-}
+class Transitive_EqualitySMT a where
+  transitivity_EqualitySMT_ :: a -> a -> a -> EqualitySMT a -> EqualitySMT a -> EqualitySMT a
+
+instance EqSMT a => Transitive_EqualitySMT a where
+  transitivity_EqualitySMT_ x y z eSMT_x_y eSMT_y_z =
+    let e_x_y = fromEqualitySMT x y eSMT_x_y
+        e_y_z = fromEqualitySMT y z eSMT_y_z
+        e_x_z = e_x_y &&& e_y_z
+     in FromPrim x z e_x_z
+
+{-
+### Substitutivity
+-}
+
+{-@
+class Substitutitive_EqualitySMT a b where
+  substitutivity_EqualitySMT_ :: x:a -> y:a -> c:(a -> b) -> EqualSMT a {x} {y} -> EqualSMT b {c x} {c y}
+@-}
+class Substitutitive_EqualitySMT a b where
+  substitutivity_EqualitySMT_ :: a -> a -> (a -> b) -> EqualitySMT a -> EqualitySMT b
+
+instance (EqSMT a, EqSMT b) => Substitutitive_EqualitySMT a b where
+  substitutivity_EqualitySMT_ x y c eSMT_x_y =
+    let e_x_y = fromEqualitySMT x y eSMT_x_y
+        e_cx_cy = substitutivity_Prim x y c e_x_y
+     in FromPrim (c x) (c y) e_cx_cy
+
+{-@
+substitutivity_Prim ::
   x:a -> y:a -> c:(a -> b) -> {_:Proof | x = y} -> {_:Proof | c x = c y}
 @-}
-substitutivePrim :: a -> a -> (a -> b) -> Proof -> Proof
-substitutivePrim x y c e = e
-
-{-@
-substitutiveSMT ::
-  (EqSMT a, EqSMT b) =>
-  x:a -> y:a -> c:(a -> b) ->
-  EqualSMT a {x} {y} ->
-  EqualSMT b {c x} {c y}
-@-}
-substitutiveSMT ::
-  (EqSMT a, EqSMT b) => a -> a -> (a -> b) -> EqualitySMT a -> EqualitySMT b
-substitutiveSMT x y c eSMT_x_y =
-  let e_x_y = fromEqualitySMT x y eSMT_x_y
-      e_cx_cy = substitutivePrim x y c e_x_y
-   in FromPrim (c x) (c y) e_cx_cy
+substitutivity_Prim :: a -> a -> (a -> b) -> Proof -> Proof
+substitutivity_Prim x y c e = e
