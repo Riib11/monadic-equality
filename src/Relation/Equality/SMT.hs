@@ -88,11 +88,15 @@ isTransitiveEqualSMT_Bool =
          in SMT x z (e_x_y &&& e_y_z)
     )
 
-{-@
-eSMT_isSubstitutive :: x:a -> y:a -> c:(a -> b) -> {_:Proof | x = y} -> {_:Proof | c x = c y}
-@-}
-eSMT_isSubstitutive :: a -> a -> (a -> b) -> Proof -> Proof
-eSMT_isSubstitutive x y c hyp = hyp
+{-
+TODO: error
+
+Giving `e_cx_cy` in place of `undefined` below yields this liquid error:
+
+**** LIQUID: ERROR :1:1-1:1: Error
+PANIC: Please file an issue at https://github.com/ucsd-progsys/liquid-fixpoint
+Unknown func-sort: (Relation.Equality.SMT.EqualSMT Bool) : (Relation.Equality.SMT.EqualSMT Int) for ()
+-}
 
 {-@
 assume isSubstitutiveEqualSMT_Bool ::
@@ -104,8 +108,15 @@ isSubstitutiveEqualSMT_Bool isEquality =
   constructIsSubstitutive
     ( \x y c eSMT_x_y ->
         let e_x_y = fromEqualSMT x y eSMT_x_y
-         in SMT (c x) (c y) undefined -- (eSMT_isSubstitutive x y c e_x_y)
+            e_cx_cy = eSMT_isSubstitutive x y c e_x_y
+         in SMT (c x) (c y) undefined
     )
+
+{-@
+eSMT_isSubstitutive :: x:a -> y:a -> c:(a -> b) -> {_:Proof | x = y} -> {_:Proof | c x = c y}
+@-}
+eSMT_isSubstitutive :: a -> a -> (a -> b) -> Proof -> Proof
+eSMT_isSubstitutive x y c hyp = hyp
 
 -- {-@
 -- assume isEqualityEqualSMT_Bool :: IsEquality <{\x y w -> eqsmt x y w}> EqualSMT Bool
