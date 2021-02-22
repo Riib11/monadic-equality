@@ -50,3 +50,54 @@ fromEqualityProp x y eProp = FromPrim x y (trust_me x y)
     @-}
     trust_me :: a -> a -> Proof
     trust_me _ _ = ()
+
+{-
+TODO:
+
+- reflexivity
+- symmetry
+- transitivity
+- substitutitivity
+-}
+
+{-@
+class ReflexivityEqualityProp a where
+  reflexivityEqualityProp :: x:a -> EqualProp a {x} {x}
+@-}
+class ReflexivityEqualityProp a where
+  reflexivityEqualityProp :: a -> EqualityProp a
+
+instance EqSMT a => ReflexivityEqualityProp a where
+  reflexivityEqualityProp x = FromSMT x x (FromPrim x x trivial)
+
+{-
+TODO: causes error
+
+    • Couldn't match type ‘b’ with ‘a’
+      ‘b’ is a rigid type variable bound by
+        the instance declaration
+        at src/Relation/Equality/Prop.hs:73:10-70
+      ‘a’ is a rigid type variable bound by
+        the instance declaration
+        at src/Relation/Equality/Prop.hs:73:10-70
+      Expected type: EqualityProp a
+        Actual type: EqualityProp b
+    • In the expression: reflexivityEqualityProp (f x)
+      In the third argument of ‘Extensionality’, namely
+        ‘(\ x -> reflexivityEqualityProp (f x))’
+      In the expression:
+        Extensionality f f (\ x -> reflexivityEqualityProp (f x))
+    • Relevant bindings include
+        x :: a (bound at src/Relation/Equality/Prop.hs:75:26)
+        f :: a -> b (bound at src/Relation/Equality/Prop.hs:74:27)
+        reflexivityEqualityProp :: (a -> b) -> EqualityProp (a -> b)
+          (bound at src/Relation/Equality/Prop.hs:74:3)
+   |
+75 |     Extensionality f f (\x -> reflexivityEqualityProp (f x))
+   |                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+-}
+
+instance ReflexivityEqualityProp b => ReflexivityEqualityProp (a -> b) where
+  reflexivityEqualityProp f =
+    Extensionality f f (\x -> reflexivityEqualityProp (f x))
