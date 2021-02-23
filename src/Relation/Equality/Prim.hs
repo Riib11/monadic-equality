@@ -15,8 +15,22 @@ symmetry_EqualityPrim :: a -> a -> Proof -> Proof
 symmetry_EqualityPrim x y e_x_y = e_x_y
 
 {-@
+transitivity_EqualityPrim :: x:a -> y:a -> z:a -> {_:Proof | x = y} -> {_:Proof | y = z} -> {_:Proof | x = z}
+@-}
+transitivity_EqualityPrim :: a -> a -> a -> Proof -> Proof -> Proof
+transitivity_EqualityPrim x y z e_x_y e_y_z = e_x_y &&& e_y_z
+
+{-@
 substitutivity_Prim ::
   x:a -> y:a -> c:(a -> b) -> {_:Proof | x = y} -> {_:Proof | c x = c y}
 @-}
 substitutivity_Prim :: a -> a -> (a -> b) -> Proof -> Proof
 substitutivity_Prim x y c e = e
+
+-- -- must be instantiated for each instance of concrete SMT equality
+-- {-@
+-- class Concrete_EqualitySMT a where
+--   concreteness_EqualitySMT :: x:a -> y:a -> EqualSMT a {x} {y} -> {_:Proof | x = y}
+-- @-}
+-- class Concrete_EqualitySMT a where
+--   concreteness_EqualitySMT :: a -> a -> EqualitySMT a -> Proof
