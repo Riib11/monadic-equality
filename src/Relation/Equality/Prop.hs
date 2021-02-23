@@ -58,10 +58,9 @@ class Retractable a b where
 class Retractable a b where
   retractability :: (a -> b) -> (a -> b) -> EqualityProp (a -> b) -> (a -> EqualityProp b)
 
--- TODO: why does this not type-check?
+-- TODO: why not type-check?
 instance Retractable a b where
-  retractability f g e_f_g x =
-    Substitutability f g (given x) e_f_g
+  retractability f g e_f_g x = undefined -- Substitutability f g (given x) e_f_g
 
 {-
 ### Reflexivity
@@ -103,22 +102,6 @@ instance (Symmetric b, Retractable a b) => Symmetric (a -> b) where
     let eProp_fx_gx = retractability f g eProp_f_g
         eProp_gx_fx x = symmetry (f x) (g x) (eProp_fx_gx x)
      in Extensionality g f eProp_gx_fx
-
--- instance Symmetric b => Symmetric (a -> b) where
---   symmetry f g eProp_f_g =
---     Extensionality g f $ \x ->
---       let {-@
---           eProp_f_g_ :: EqualProp (a -> b) {f} {g}
---           @-}
---           eProp_f_g_ :: EqualityProp (a -> b)
---           eProp_f_g_ = eProp_f_g
-
---           {-@
---           eProp_fx_gx :: EqualProp b {given x f} {given x g}
---           @-}
---           eProp_fx_gx :: EqualityProp b
---           eProp_fx_gx = Substitutability g f (given x) eProp_f_g_ ? (given x f) ? (given x g)
---        in symmetry (f x) (g x) eProp_fx_gx
 
 {-
 ### Transitivity
