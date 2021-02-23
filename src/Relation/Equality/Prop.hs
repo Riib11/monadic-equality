@@ -1,5 +1,8 @@
+{-# LANGUAGE ScopedTypeVariables #-}
+
 module Relation.Equality.Prop where
 
+import Function
 import ProofCombinators
 
 {-
@@ -55,18 +58,10 @@ class Retractable a b where
 class Retractable a b where
   retractability :: (a -> b) -> (a -> b) -> EqualityProp (a -> b) -> (a -> EqualityProp b)
 
+-- TODO: why does this not type-check?
 instance Retractable a b where
-  retractability = retractability_
-
--- TODO: must be assumed?
-{-@
-assume retractability_ :: f:(a -> b) -> g:(a -> b) -> EqualProp (a -> b) {f} {g} -> (x:a -> EqualProp b {f x} {g x})
-@-}
-retractability_ :: (a -> b) -> (a -> b) -> EqualityProp (a -> b) -> (a -> EqualityProp b)
-retractability_ f g eProp_f_g x =
-  case eProp_f_g of
-    Extensionality _ _ eProp_fx_gx -> eProp_fx_gx x
-    _ -> undefined -- impossible to have non-extensional equality over a function type
+  retractability f g e_f_g x =
+    Substitutability f g (given x) e_f_g
 
 {-
 ### Reflexivity
@@ -103,11 +98,27 @@ instance Concrete a => Symmetric a where
         e_y_x = e_x_y -- by SMT
      in FromSMT y x e_y_x
 
-instance Symmetric b => Symmetric (a -> b) where
+instance (Symmetric b, Retractable a b) => Symmetric (a -> b) where
   symmetry f g eProp_f_g =
     let eProp_fx_gx = retractability f g eProp_f_g
         eProp_gx_fx x = symmetry (f x) (g x) (eProp_fx_gx x)
      in Extensionality g f eProp_gx_fx
+
+-- instance Symmetric b => Symmetric (a -> b) where
+--   symmetry f g eProp_f_g =
+--     Extensionality g f $ \x ->
+--       let {-@
+--           eProp_f_g_ :: EqualProp (a -> b) {f} {g}
+--           @-}
+--           eProp_f_g_ :: EqualityProp (a -> b)
+--           eProp_f_g_ = eProp_f_g
+
+--           {-@
+--           eProp_fx_gx :: EqualProp b {given x f} {given x g}
+--           @-}
+--           eProp_fx_gx :: EqualityProp b
+--           eProp_fx_gx = Substitutability g f (given x) eProp_f_g_ ? (given x f) ? (given x g)
+--        in symmetry (f x) (g x) eProp_fx_gx
 
 {-
 ### Transitivity
@@ -127,7 +138,7 @@ instance Concrete a => Transitive a where
         e_x_z = e_x_y &&& e_y_z -- by SMT
      in FromSMT x z e_x_z
 
-instance Transitive b => Transitive (a -> b) where
+instance (Transitive b, Retractable a b) => Transitive (a -> b) where
   transitivity f g h eProp_f_g eProp_g_h =
     let eSMT_fx_gx = retractability f g eProp_f_g
         eSMT_gx_hx = retractability g h eProp_g_h
@@ -139,11 +150,11 @@ instance Transitive b => Transitive (a -> b) where
 -}
 
 {-@
-class Substitutitive a where
+class Substitutability a where
   substitutability :: forall b. x:a -> y:a -> c:(a -> b) -> EqualProp a {x} {y} -> EqualProp b {c x} {c y}
 @-}
-class Substitutitive a where
+class Substitutability a where
   substitutability :: forall b. a -> a -> (a -> b) -> EqualityProp a -> EqualityProp b
 
-instance Substitutitive a where
+instance Substitutability a where
   substitutability x y c eProp_x_y = Substitutability x y c eProp_x_y
