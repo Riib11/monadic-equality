@@ -1,8 +1,6 @@
 module Relation.Equality.Prop where
 
 import ProofCombinators
-import Relation.Equality.Prim
-import Relation.Equality.SMT
 
 {-
 # Propositional Equality
@@ -40,32 +38,32 @@ data EqualityProp :: * -> * where
 -}
 
 {-@
-class Concrete_EqualityProp a where
-  concreteness_EqualityProp :: x:a -> y:a -> EqualProp a {x} {y} -> {_:Proof | x = y}
+class Concrete a where
+  concreteness :: x:a -> y:a -> EqualProp a {x} {y} -> {_:Proof | x = y}
 @-}
-class Concrete_EqualityProp a where
-  concreteness_EqualityProp :: a -> a -> EqualityProp a -> Proof
+class Concrete a where
+  concreteness :: a -> a -> EqualityProp a -> Proof
 
 {-
 ### Retractability
 -}
 
 {-@
-class Retractable_EqualityProp a b where
-  retractability_EqualityProp :: f:(a -> b) -> g:(a -> b) -> EqualProp (a -> b) {f} {g} -> (x:a -> EqualProp b {f x} {g x})
+class Retractable a b where
+  retractability :: f:(a -> b) -> g:(a -> b) -> EqualProp (a -> b) {f} {g} -> (x:a -> EqualProp b {f x} {g x})
 @-}
-class Retractable_EqualityProp a b where
-  retractability_EqualityProp :: (a -> b) -> (a -> b) -> EqualityProp (a -> b) -> (a -> EqualityProp b)
+class Retractable a b where
+  retractability :: (a -> b) -> (a -> b) -> EqualityProp (a -> b) -> (a -> EqualityProp b)
 
-instance Retractable_EqualityProp a b where
-  retractability_EqualityProp = retractability_EqualityProp_
+instance Retractable a b where
+  retractability = retractability_
 
 -- TODO: must be assumed?
 {-@
-assume retractability_EqualityProp_ :: f:(a -> b) -> g:(a -> b) -> EqualProp (a -> b) {f} {g} -> (x:a -> EqualProp b {f x} {g x})
+assume retractability_ :: f:(a -> b) -> g:(a -> b) -> EqualProp (a -> b) {f} {g} -> (x:a -> EqualProp b {f x} {g x})
 @-}
-retractability_EqualityProp_ :: (a -> b) -> (a -> b) -> EqualityProp (a -> b) -> (a -> EqualityProp b)
-retractability_EqualityProp_ f g eProp_f_g x =
+retractability_ :: (a -> b) -> (a -> b) -> EqualityProp (a -> b) -> (a -> EqualityProp b)
+retractability_ f g eProp_f_g x =
   case eProp_f_g of
     Extensionality _ _ eProp_fx_gx -> eProp_fx_gx x
     _ -> undefined -- impossible to have non-extensional equality over a function type
@@ -75,40 +73,40 @@ retractability_EqualityProp_ f g eProp_f_g x =
 -}
 
 {-@
-class Reflexive_EqualityProp a where
-  reflexivity_EqualityProp :: x:a -> EqualProp a {x} {x}
+class Reflexive a where
+  reflexivity :: x:a -> EqualProp a {x} {x}
 @-}
-class Reflexive_EqualityProp a where
-  reflexivity_EqualityProp :: a -> EqualityProp a
+class Reflexive a where
+  reflexivity :: a -> EqualityProp a
 
-instance Concrete_EqualityProp a => Reflexive_EqualityProp a where
-  reflexivity_EqualityProp x = FromSMT x x trivial
+instance Concrete a => Reflexive a where
+  reflexivity x = FromSMT x x trivial
 
-instance Reflexive_EqualityProp b => Reflexive_EqualityProp (a -> b) where
-  reflexivity_EqualityProp f =
-    Extensionality f f (\x -> reflexivity_EqualityProp (f x))
+instance Reflexive b => Reflexive (a -> b) where
+  reflexivity f =
+    Extensionality f f (\x -> reflexivity (f x))
 
 {-
 ### Symmetry
 -}
 
 {-@
-class Symmetric_EqualityProp a where
-  symmetry_EqualityProp :: x:a -> y:a -> EqualProp a {x} {y} -> EqualProp a {y} {x}
+class Symmetric a where
+  symmetry :: x:a -> y:a -> EqualProp a {x} {y} -> EqualProp a {y} {x}
 @-}
-class Symmetric_EqualityProp a where
-  symmetry_EqualityProp :: a -> a -> EqualityProp a -> EqualityProp a
+class Symmetric a where
+  symmetry :: a -> a -> EqualityProp a -> EqualityProp a
 
-instance Concrete_EqualityProp a => Symmetric_EqualityProp a where
-  symmetry_EqualityProp x y eProp_x_y =
-    let e_x_y = concreteness_EqualityProp x y eProp_x_y
-        e_y_x = symmetry_EqualityPrim x y e_x_y
+instance Concrete a => Symmetric a where
+  symmetry x y eProp_x_y =
+    let e_x_y = concreteness x y eProp_x_y
+        e_y_x = e_x_y -- by SMT
      in FromSMT y x e_y_x
 
-instance Symmetric_EqualityProp b => Symmetric_EqualityProp (a -> b) where
-  symmetry_EqualityProp f g eProp_f_g =
-    let eProp_fx_gx = retractability_EqualityProp f g eProp_f_g
-        eProp_gx_fx x = symmetry_EqualityProp (f x) (g x) (eProp_fx_gx x)
+instance Symmetric b => Symmetric (a -> b) where
+  symmetry f g eProp_f_g =
+    let eProp_fx_gx = retractability f g eProp_f_g
+        eProp_gx_fx x = symmetry (f x) (g x) (eProp_fx_gx x)
      in Extensionality g f eProp_gx_fx
 
 {-
@@ -116,24 +114,24 @@ instance Symmetric_EqualityProp b => Symmetric_EqualityProp (a -> b) where
 -}
 
 {-@
-class Transitive_EqualityProp a where
-  transitivity_EqualityProp :: x:a -> y:a -> z:a -> EqualProp a {x} {y} -> EqualProp a {y} {z} -> EqualProp a {x} {z}
+class Transitive a where
+  transitivity :: x:a -> y:a -> z:a -> EqualProp a {x} {y} -> EqualProp a {y} {z} -> EqualProp a {x} {z}
 @-}
-class Transitive_EqualityProp a where
-  transitivity_EqualityProp :: a -> a -> a -> EqualityProp a -> EqualityProp a -> EqualityProp a
+class Transitive a where
+  transitivity :: a -> a -> a -> EqualityProp a -> EqualityProp a -> EqualityProp a
 
-instance Concrete_EqualityProp a => Transitive_EqualityProp a where
-  transitivity_EqualityProp x y z eProp_x_y eProp_y_z =
-    let e_x_y = concreteness_EqualityProp x y eProp_x_y
-        e_y_z = concreteness_EqualityProp y z eProp_y_z
-        e_x_z = transitivity_EqualityPrim x y z e_x_y e_y_z
+instance Concrete a => Transitive a where
+  transitivity x y z eProp_x_y eProp_y_z =
+    let e_x_y = concreteness x y eProp_x_y
+        e_y_z = concreteness y z eProp_y_z
+        e_x_z = e_x_y &&& e_y_z -- by SMT
      in FromSMT x z e_x_z
 
-instance Transitive_EqualityProp b => Transitive_EqualityProp (a -> b) where
-  transitivity_EqualityProp f g h eProp_f_g eProp_g_h =
-    let eSMT_fx_gx = retractability_EqualityProp f g eProp_f_g
-        eSMT_gx_hx = retractability_EqualityProp g h eProp_g_h
-        eSMT_fx_hx x = transitivity_EqualityProp (f x) (g x) (h x) (eSMT_fx_gx x) (eSMT_gx_hx x)
+instance Transitive b => Transitive (a -> b) where
+  transitivity f g h eProp_f_g eProp_g_h =
+    let eSMT_fx_gx = retractability f g eProp_f_g
+        eSMT_gx_hx = retractability g h eProp_g_h
+        eSMT_fx_hx x = transitivity (f x) (g x) (h x) (eSMT_fx_gx x) (eSMT_gx_hx x)
      in Extensionality f h eSMT_fx_hx
 
 {-
@@ -141,11 +139,11 @@ instance Transitive_EqualityProp b => Transitive_EqualityProp (a -> b) where
 -}
 
 {-@
-class Substitutitive_EqualityProp a where
-  substitutability_EqualityProp :: forall b. x:a -> y:a -> c:(a -> b) -> EqualProp a {x} {y} -> EqualProp b {c x} {c y}
+class Substitutitive a where
+  substitutability :: forall b. x:a -> y:a -> c:(a -> b) -> EqualProp a {x} {y} -> EqualProp b {c x} {c y}
 @-}
-class Substitutitive_EqualityProp a where
-  substitutability_EqualityProp :: forall b. a -> a -> (a -> b) -> EqualityProp a -> EqualityProp b
+class Substitutitive a where
+  substitutability :: forall b. a -> a -> (a -> b) -> EqualityProp a -> EqualityProp b
 
-instance Substitutitive_EqualityProp a where
-  substitutability_EqualityProp x y c eProp_x_y = Substitutability x y c eProp_x_y
+instance Substitutitive a where
+  substitutability x y c eProp_x_y = Substitutability x y c eProp_x_y
