@@ -24,12 +24,12 @@ type EqualProp a X Y = {w:EqualityProp a | eqprop X Y w}
 data EqualityProp :: * -> * where
     FromSMT :: x:a -> y:a -> {_:Proof | x = y} -> EqualProp a {x} {y}
   | Extensionality :: f:(a -> b) -> g:(a -> b) -> (x:a -> EqualProp b {f x} {g x}) -> EqualProp (a -> b) {f} {g}
-  | Substitutivity :: x:a -> y:a -> c:(a -> b) -> EqualProp a {x} {y} -> EqualProp b {c x} {c y}
+  | Substitutability :: x:a -> y:a -> c:(a -> b) -> EqualProp a {x} {y} -> EqualProp b {c x} {c y}
 @-}
 data EqualityProp :: * -> * where
   FromSMT :: a -> a -> Proof -> EqualityProp a
   Extensionality :: (a -> b) -> (a -> b) -> (a -> EqualityProp b) -> EqualityProp (a -> b)
-  Substitutivity :: a -> a -> (a -> b) -> EqualityProp a -> EqualityProp b
+  Substitutability :: a -> a -> (a -> b) -> EqualityProp a -> EqualityProp b
 
 {-
 ## Properties
@@ -137,15 +137,15 @@ instance Transitive_EqualityProp b => Transitive_EqualityProp (a -> b) where
      in Extensionality f h eSMT_fx_hx
 
 {-
-### Substitutivity
+### Substitutability
 -}
 
 {-@
 class Substitutitive_EqualityProp a where
-  substitutivity_EqualityProp :: forall b. x:a -> y:a -> c:(a -> b) -> EqualProp a {x} {y} -> EqualProp b {c x} {c y}
+  substitutability_EqualityProp :: forall b. x:a -> y:a -> c:(a -> b) -> EqualProp a {x} {y} -> EqualProp b {c x} {c y}
 @-}
 class Substitutitive_EqualityProp a where
-  substitutivity_EqualityProp :: forall b. a -> a -> (a -> b) -> EqualityProp a -> EqualityProp b
+  substitutability_EqualityProp :: forall b. a -> a -> (a -> b) -> EqualityProp a -> EqualityProp b
 
 instance Substitutitive_EqualityProp a where
-  substitutivity_EqualityProp x y c eProp_x_y = Substitutivity x y c eProp_x_y
+  substitutability_EqualityProp x y c eProp_x_y = Substitutability x y c eProp_x_y

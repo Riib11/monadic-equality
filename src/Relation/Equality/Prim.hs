@@ -21,11 +21,11 @@ transitivity_EqualityPrim :: a -> a -> a -> Proof -> Proof -> Proof
 transitivity_EqualityPrim x y z e_x_y e_y_z = e_x_y &&& e_y_z
 
 {-@
-substitutivity_Prim ::
+substitutability_Prim ::
   x:a -> y:a -> c:(a -> b) -> {_:Proof | x = y} -> {_:Proof | c x = c y}
 @-}
-substitutivity_Prim :: a -> a -> (a -> b) -> Proof -> Proof
-substitutivity_Prim x y c e = e
+substitutability_Prim :: a -> a -> (a -> b) -> Proof -> Proof
+substitutability_Prim x y c e = e
 
 -- -- must be instantiated for each instance of concrete SMT equality
 -- {-@

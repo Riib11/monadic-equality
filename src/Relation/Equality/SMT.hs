@@ -100,18 +100,18 @@ import Relation.Equality.Prim
 --      in FromEqualityPrim x z e_x_z
 
 -- {-
--- ### Substitutivity
+-- ### Substitutability
 -- -}
 
 -- {-@
 -- class Substitutitive_EqualitySMT a b where
---   substitutivity_EqualitySMT :: x:a -> y:a -> c:(a -> b) -> EqualSMT a {x} {y} -> EqualSMT b {c x} {c y}
+--   substitutability_EqualitySMT :: x:a -> y:a -> c:(a -> b) -> EqualSMT a {x} {y} -> EqualSMT b {c x} {c y}
 -- @-}
 -- class Substitutitive_EqualitySMT a b where
---   substitutivity_EqualitySMT :: a -> a -> (a -> b) -> EqualitySMT a -> EqualitySMT b
+--   substitutability_EqualitySMT :: a -> a -> (a -> b) -> EqualitySMT a -> EqualitySMT b
 
 -- instance (Concrete_EqualitySMT a, Concrete_EqualitySMT b) => Substitutitive_EqualitySMT a b where
---   substitutivity_EqualitySMT x y c eSMT_x_y =
+--   substitutability_EqualitySMT x y c eSMT_x_y =
 --     let e_x_y = concreteness_EqualitySMT x y eSMT_x_y
---         e_cx_cy = substitutivity_Prim x y c e_x_y
+--         e_cx_cy = substitutability_Prim x y c e_x_y
 --      in FromEqualityPrim (c x) (c y) e_cx_cy
