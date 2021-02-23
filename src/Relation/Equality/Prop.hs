@@ -31,24 +31,6 @@ data EqualityProp :: * -> * where
   Extensionality :: (a -> b) -> (a -> b) -> (a -> EqualityProp b) -> EqualityProp (a -> b)
   Substitutivity :: a -> a -> (a -> b) -> EqualityProp a -> EqualityProp b
 
--- {-@
--- toEqualityProp :: x:a -> y:a -> EqualSMT a {x} {y} -> EqualProp a {x} {y}
--- @-}
--- toEqualityProp :: a -> a -> EqualitySMT a -> EqualityProp a
--- toEqualityProp x y eSMT = FromSMT x y eSMT
-
-{-@
-fromEqualityProp :: Concrete_EqualitySMT a => x:a -> y:a -> EqualProp a {x} {y} -> EqualSMT a {x} {y}
-@-}
-fromEqualityProp :: Concrete_EqualitySMT a => a -> a -> EqualityProp a -> EqualitySMT a
-fromEqualityProp x y eProp = FromEqualityPrim x y (trust_me x y)
-  where
-    {-@
-    assume trust_me :: x:a -> y:a -> {_:Proof | x = y}
-    @-}
-    trust_me :: a -> a -> Proof
-    trust_me _ _ = ()
-
 {-
 ## Properties
 -}
@@ -59,25 +41,19 @@ fromEqualityProp x y eProp = FromEqualityPrim x y (trust_me x y)
 
 {-@
 class Concrete_EqualityProp a where
-  concreteness_EqualityProp :: x:a -> y:a -> EqualProp a {x} {y} -> EqualSMT a {x} {y}
+  concreteness_EqualityProp :: x:a -> y:a -> EqualProp a {x} {y} -> {_:Proof | x = y}
 @-}
 class Concrete_EqualityProp a where
-  concreteness_EqualityProp :: a -> a -> EqualityProp a -> EqualitySMT a
+  concreteness_EqualityProp :: a -> a -> EqualityProp a -> Proof
 
 instance Concrete_EqualitySMT a => Concrete_EqualityProp a where
   concreteness_EqualityProp = concreteness_EqualityProp_
 
 {-@
-assume concreteness_EqualityProp_ :: Concrete_EqualitySMT a => x:a -> y:a -> EqualProp a {x} {y} -> EqualSMT a {x} {y}
+assume concreteness_EqualityProp_ :: Concrete_EqualitySMT a => x:a -> y:a -> EqualProp a {x} {y} -> {_:Proof | x = y}
 @-}
-concreteness_EqualityProp_ :: Concrete_EqualitySMT a => a -> a -> EqualityProp a -> EqualitySMT a
-concreteness_EqualityProp_ x y eProp_x_y =
-  case eProp_x_y of
-    FromSMT _ _ eSMT_x_y -> eSMT_x_y
-    -- Substitutivity x' y' c eProp_x'_y' ->
-    --   let eSMT_x'_y' = concreteness_EqualityProp_ x' y' eProp_x'_y'
-    --    in undefined -- TODO: implement
-    _ -> undefined -- impossible to have non-lifted SMT-concrete equality
+concreteness_EqualityProp_ :: Concrete_EqualitySMT a => a -> a -> EqualityProp a -> Proof
+concreteness_EqualityProp_ x y eProp_x_y = ()
 
 {-
 ### Unextensionality
@@ -134,8 +110,8 @@ class Symmetric_EqualityProp a where
 
 instance Concrete_EqualitySMT a => Symmetric_EqualityProp a where
   symmetry_EqualityProp x y eProp_x_y =
-    let eSMT_x_y = fromEqualityProp x y eProp_x_y
-        eSMT_y_x = symmetry_EqualitySMT x y eSMT_x_y
+    let e_x_y = concreteness_EqualityProp x y eProp_x_y
+        eSMT_y_x = symmetry_EqualitySMT x y (FromEqualityPrim x y e_x_y)
      in FromSMT y x eSMT_y_x
 
 instance Symmetric_EqualityProp b => Symmetric_EqualityProp (a -> b) where
@@ -157,9 +133,9 @@ class Transitive_EqualityProp a where
 
 instance Concrete_EqualitySMT a => Transitive_EqualityProp a where
   transitivity_EqualityProp x y z eProp_x_y eProp_y_z =
-    let eSMT_x_y = fromEqualityProp x y eProp_x_y
-        eSMT_y_z = fromEqualityProp y z eProp_y_z
-        eSMT_x_z = transitivity_EqualitySMT x y z eSMT_x_y eSMT_y_z
+    let eSMT_x_y = concreteness_EqualityProp x y eProp_x_y
+        eSMT_y_z = concreteness_EqualityProp y z eProp_y_z
+        eSMT_x_z = transitivity_EqualitySMT x y z (FromEqualityPrim x y eSMT_x_y) (FromEqualityPrim y z eSMT_y_z)
      in FromSMT x z eSMT_x_z
 
 instance Transitive_EqualityProp b => Transitive_EqualityProp (a -> b) where
