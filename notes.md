@@ -97,3 +97,22 @@ an example in the paper.) The main departures I made are:
   way that Haskell assumes that Eq instances are proper equalities, but my
   approach with just relying on `Concrete` is simpler and I dont think it relies
   on assumptions of the user other than the one’s already baked into `Eq`.
+
+## February 24
+
+- response to Nik
+- explanation of why abandoned abstract refinements
+- retractable instance (use implcit instance )
+- why not type-indexed equality default in LH?
+  - as a proof of concept, just turn everything into propositional equalities,
+    and convert to SMT equality when there is Concrete instance
+  - does type-indexed equality require handing off type unificiation (including
+    for refinement types) to the SMT solver? because that would be very
+    difficult/impossible.
+  - Niki does not think that allowing type-indexed equality in native LH would
+    work -- why exactly?
+- going forward: examples in paper and monadic quicksort
+- going forward: is my work a good improvmeent over the supp impl? can this
+  replace some things, or not?
+  - how to make use of my work -- perhaps present it on its own? or have the
+    monadic quicksort proof stuff on top to show it working?

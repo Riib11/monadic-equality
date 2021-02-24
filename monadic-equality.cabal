@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 1e4590ace49d425c2d906d6f7440ab41442b42070fd40173bf81ce08a56f8e21
+-- hash: ffd96ba8639eb493bff182d8f0e3a9ad05a41f2bea9c681c05750d728c602d82
 
 name:           monadic-equality
 version:        0.1.0.0
@@ -27,6 +27,7 @@ source-repository head
 
 library
   exposed-modules:
+      Example.Reverse
       Function
       ProofCombinators
       Relation
@@ -40,5 +41,6 @@ library
   ghc-options: -Wall -Wno-name-shadowing -Wno-unused-imports -Wno-unused-matches -Wno-unused-local-binds -fplugin=LiquidHaskell -fplugin-opt=LiquidHaskell:--reflection -fplugin-opt=LiquidHaskell:--ple-local -fplugin-opt=LiquidHaskell:--diff -fplugin-opt=LiquidHaskell:--short-names -fplugin-opt=LiquidHaskell:--prune-unsorted
   build-depends:
       liquid-base
+    , liquid-prelude
     , liquidhaskell ==0.8.10.2
   default-language: Haskell2010

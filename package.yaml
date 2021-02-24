@@ -25,6 +25,7 @@ dependencies:
   # - base >= 4.7 && < 5
   - liquidhaskell == 0.8.10.2
   - liquid-base
+  - liquid-prelude
 
 library:
   source-dirs: src
