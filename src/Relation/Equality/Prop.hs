@@ -58,9 +58,11 @@ class Retractable a b where
 class Retractable a b where
   retractability :: (a -> b) -> (a -> b) -> EqualityProp (a -> b) -> (a -> EqualityProp b)
 
--- TODO: why not type-check?
 instance Retractable a b where
-  retractability f g e_f_g x = undefined -- Substitutability f g (given x) e_f_g
+  retractability f g eProp_f_g x =
+    Substitutability f g (given x) eProp_f_g
+      ? (given x f) -- instantiate `f x`
+      ? (given x g) -- instantiate `g x`
 
 {-
 ### Reflexivity
