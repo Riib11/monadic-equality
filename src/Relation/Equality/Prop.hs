@@ -68,8 +68,8 @@ class Retractable a b where
   retractability :: (a -> b) -> (a -> b) -> EqualityProp (a -> b) -> (a -> EqualityProp b)
 
 instance Retractable a b where
-  retractability f g eProp_f_g x =
-    Substitutability f g (given x) eProp_f_g
+  retractability f g eqProp_f_g x =
+    Substitutability f g (given x) eqProp_f_g
       ? (given x f) -- instantiate `f x`
       ? (given x g) -- instantiate `g x`
 
@@ -89,8 +89,8 @@ instance Concrete a => Reflexive a where
 
 instance Reflexive b => Reflexive (a -> b) where
   reflexivity f =
-    let eProp_fx_fx x = reflexivity (f x)
-     in Extensionality f f eProp_fx_fx
+    let eqProp_fx_fx x = reflexivity (f x)
+     in Extensionality f f eqProp_fx_fx
 
 {-
 ### Symmetry
@@ -104,16 +104,16 @@ class Symmetric a where
   symmetry :: a -> a -> EqualityProp a -> EqualityProp a
 
 instance Concrete a => Symmetric a where
-  symmetry x y eProp_x_y =
-    let e_x_y = concreteness x y eProp_x_y
-        e_y_x = e_x_y -- by SMT
-     in FromSMT y x e_y_x
+  symmetry x y eqProp_x_y =
+    let eq_x_y = concreteness x y eqProp_x_y
+        eq_y_x = eq_x_y -- by SMT
+     in FromSMT y x eq_y_x
 
 instance (Symmetric b, Retractable a b) => Symmetric (a -> b) where
-  symmetry f g eProp_f_g =
-    let eProp_fx_gx = retractability f g eProp_f_g
-        eProp_gx_fx x = symmetry (f x) (g x) (eProp_fx_gx x)
-     in Extensionality g f eProp_gx_fx
+  symmetry f g eqProp_f_g =
+    let eqProp_fx_gx = retractability f g eqProp_f_g
+        eqProp_gx_fx x = symmetry (f x) (g x) (eqProp_fx_gx x)
+     in Extensionality g f eqProp_gx_fx
 
 {-
 ### Transitivity
@@ -127,16 +127,16 @@ class Transitive a where
   transitivity :: a -> a -> a -> EqualityProp a -> EqualityProp a -> EqualityProp a
 
 instance Concrete a => Transitive a where
-  transitivity x y z eProp_x_y eProp_y_z =
-    let e_x_y = concreteness x y eProp_x_y
-        e_y_z = concreteness y z eProp_y_z
-        e_x_z = e_x_y &&& e_y_z -- by SMT
-     in FromSMT x z e_x_z
+  transitivity x y z eqProp_x_y eqProp_y_z =
+    let eq_x_y = concreteness x y eqProp_x_y
+        eq_y_z = concreteness y z eqProp_y_z
+        eq_x_z = eq_x_y &&& eq_y_z -- by SMT
+     in FromSMT x z eq_x_z
 
 instance (Transitive b, Retractable a b) => Transitive (a -> b) where
-  transitivity f g h eProp_f_g eProp_g_h =
-    let eSMT_fx_gx = retractability f g eProp_f_g
-        eSMT_gx_hx = retractability g h eProp_g_h
+  transitivity f g h eqProp_f_g eqProp_g_h =
+    let eSMT_fx_gx = retractability f g eqProp_f_g
+        eSMT_gx_hx = retractability g h eqProp_g_h
         eSMT_fx_hx x = transitivity (f x) (g x) (h x) (eSMT_fx_gx x) (eSMT_gx_hx x)
      in Extensionality f h eSMT_fx_hx
 
@@ -152,4 +152,4 @@ class Substitutability a where
   substitutability :: forall b. a -> a -> (a -> b) -> EqualityProp a -> EqualityProp b
 
 instance Substitutability a where
-  substitutability x y c eProp_x_y = Substitutability x y c eProp_x_y
+  substitutability x y c eqProp_x_y = Substitutability x y c eqProp_x_y
