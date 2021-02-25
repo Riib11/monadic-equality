@@ -48,13 +48,13 @@ class Concrete a where
   concreteness :: a -> a -> EqualityProp a -> Proof
 
 instance Eq a => Concrete a where
-  concreteness = concreteness_
+  concreteness = concreteness_Eq
 
 {-@ assume
-concreteness_ :: Eq a => x:a -> y:a -> EqualProp a {x} {y} -> {_:Proof | x = y}
+concreteness_Eq :: Eq a => x:a -> y:a -> EqualProp a {x} {y} -> {_:Proof | x = y}
 @-}
-concreteness_ :: Eq a => a -> a -> EqualityProp a -> Proof
-concreteness_ _ _ _ = ()
+concreteness_Eq :: Eq a => a -> a -> EqualityProp a -> Proof
+concreteness_Eq _ _ _ = ()
 
 {-
 ### Retractability
@@ -89,7 +89,8 @@ instance Concrete a => Reflexive a where
 
 instance Reflexive b => Reflexive (a -> b) where
   reflexivity f =
-    Extensionality f f (\x -> reflexivity (f x))
+    let eProp_fx_fx x = reflexivity (f x)
+     in Extensionality f f eProp_fx_fx
 
 {-
 ### Symmetry
