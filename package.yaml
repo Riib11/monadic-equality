@@ -25,6 +25,7 @@ dependencies:
   # - base >= 4.7 && < 5
   - liquidhaskell == 0.8.10.2
   - liquid-base
+  - liquid-prelude
 
 library:
   source-dirs: src
@@ -42,6 +43,7 @@ library:
     - -Wno-unused-imports
     - -Wno-unused-matches
     - -Wno-unused-local-binds
+    - -Wno-orphans
     - -fplugin=LiquidHaskell
     - -fplugin-opt=LiquidHaskell:--reflection
     - -fplugin-opt=LiquidHaskell:--ple-local

@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 2e701faa5b64e10eb44774c79ff3acf4005d4ce7e7faa9f5c0e955d5e777671f
+-- hash: 1c4a080d66f04fc96075aba8b3174e92333f6c917e1244307f3f8d84e9b0f3f2
 
 name:           monadic-equality
 version:        0.1.0.0
@@ -27,25 +27,18 @@ source-repository head
 
 library
   exposed-modules:
-      Equality
-      Equality.Prop
-      Equality.SMT
       Function
-      Monad
-      Proof
-      RedundantBind
-      Relation
-      Test1
-      Test2
-      Test3
-      Test4
+      ProofCombinators
+      Relation.Equality.Prop
+      Relation.Equality.Prop.Example.Reverse
   other-modules:
       Paths_monadic_equality
   hs-source-dirs:
       src
   default-extensions: GADTs KindSignatures ExplicitForAll RankNTypes FlexibleInstances UndecidableInstances MultiParamTypeClasses
-  ghc-options: -Wall -Wno-name-shadowing -Wno-unused-imports -Wno-unused-matches -Wno-unused-local-binds -fplugin=LiquidHaskell -fplugin-opt=LiquidHaskell:--reflection -fplugin-opt=LiquidHaskell:--ple-local -fplugin-opt=LiquidHaskell:--diff -fplugin-opt=LiquidHaskell:--short-names -fplugin-opt=LiquidHaskell:--prune-unsorted
+  ghc-options: -Wall -Wno-name-shadowing -Wno-unused-imports -Wno-unused-matches -Wno-unused-local-binds -Wno-orphans -fplugin=LiquidHaskell -fplugin-opt=LiquidHaskell:--reflection -fplugin-opt=LiquidHaskell:--ple-local -fplugin-opt=LiquidHaskell:--diff -fplugin-opt=LiquidHaskell:--short-names -fplugin-opt=LiquidHaskell:--prune-unsorted
   build-depends:
       liquid-base
+    , liquid-prelude
     , liquidhaskell ==0.8.10.2
   default-language: Haskell2010
