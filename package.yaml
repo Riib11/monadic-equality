@@ -43,6 +43,7 @@ library:
     - -Wno-unused-imports
     - -Wno-unused-matches
     - -Wno-unused-local-binds
+    - -Wno-orphans
     - -fplugin=LiquidHaskell
     - -fplugin-opt=LiquidHaskell:--reflection
     - -fplugin-opt=LiquidHaskell:--ple-local

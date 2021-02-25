@@ -47,6 +47,15 @@ class Concrete a where
 class Concrete a where
   concreteness :: a -> a -> EqualityProp a -> Proof
 
+instance Eq a => Concrete a where
+  concreteness = concreteness_
+
+{-@ assume
+concreteness_ :: Eq a => x:a -> y:a -> EqualProp a {x} {y} -> {_:Proof | x = y}
+@-}
+concreteness_ :: Eq a => a -> a -> EqualityProp a -> Proof
+concreteness_ _ _ _ = ()
+
 {-
 ### Retractability
 -}
