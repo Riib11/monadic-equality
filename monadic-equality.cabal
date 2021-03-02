@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: f1423eee5369905b5db5c88b23bdc5cdbe8812ed10c127b4adda1a54b5a66ebe
+-- hash: 0859138707f84018031d592142793b4d4c392a060648b80f14d572dfd4f51dc9
 
 name:           monadic-equality
 version:        0.1.0.0
@@ -48,6 +48,7 @@ test-suite monadic-equality-test
       Example
       Example.Context
       Example.Monad
+      Example.MonadTest
       Example.Reader
       Example.RefinedDomRng
       Example.Reverse

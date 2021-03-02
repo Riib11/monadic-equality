@@ -33,13 +33,13 @@ kleisli f g x = bind (f x) g
 
 {-@
 identityLeft ::
-  Reflexive b =>
+  Reflexivity b =>
   x:a ->
   k:(a -> Reader r b) ->
   EqualProp (Reader r b) {bind (unit x) k} {k x}
 @-}
 identityLeft ::
-  Reflexive b =>
+  Reflexivity b =>
   a ->
   (a -> Reader r b) ->
   EqualityProp (Reader r b)
@@ -54,12 +54,12 @@ identityLeft x k =
 
 {-@
 identityRight ::
-  Reflexive a =>
+  Reflexivity a =>
   m:Reader r a ->
   EqualProp (Reader r a) {bind m unit} {m}
 @-}
 identityRight ::
-  Reflexive a =>
+  Reflexivity a =>
   Reader r a ->
   EqualityProp (Reader r a)
 identityRight m =
@@ -73,14 +73,14 @@ identityRight m =
 
 {-@
 associativity ::
-  (Reflexive c, Transitive c) =>
+  (Reflexivity c, Transitivity c) =>
   m:Reader r a ->
   k1:(a -> Reader r b) ->
   k2:(b -> Reader r c) ->
   EqualProp (Reader r c) {bind (bind m k1) k2} {bind m (kleisli k1 k2)}
 @-}
 associativity ::
-  (Reflexive c, Transitive c) =>
+  (Reflexivity c, Transitivity c) =>
   Reader r a ->
   (a -> Reader r b) ->
   (b -> Reader r c) ->

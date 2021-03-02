@@ -45,14 +45,14 @@ just one file, `Relation.Equality.Prop`.
 I’ve broken the properties I need into the following classes:
 
 - `Concrete` provides “concretization” of a propositional equality into an SMT
-  equality. `Concrete a` is instantiated for each type a for which SMT equality
-  can be used (roughly parallel to Niki’s `SMTEq` class).
+  equality. `Concreteness a` is instantiated for each type a for which SMT
+  equality can be used (roughly parallel to Niki’s `SMTEq` class).
 - `Retractable` provides the ability to use an extensional equality of f and g
   to derive `f x = g x` for a given `x`. This should directly follow from the
   definition of extensionality (the `Extensionality` constructor of
   EqualityProp, but because we can’t usefully pattern-match on instances of
   `EqualityProp`, this has to be posed as a separate property. It should be
-  possible to instantiate `forall a b. Retractable a b`, (via a use of the
+  possible to instantiate `forall a b. Retractability a b`, (via a use of the
   `Substitutability` constructor of `EqualityProp` but I’m having a problem
   getting it to type-check. so, its a work-in-progress). Perhaps this should be
   posed simply as a function rather than a class, since its instantiated for all
@@ -82,7 +82,7 @@ an example in the paper.) The main departures I made are:
   correspond via `<=>`) as well as the equivalence properties. However, I don’t
   see where I would actually need this if I can just convert to SMT equality via
   my
-  `concretization :: Concrete a => x:a -> y:a -> EqualProp a {x} {y} -> {x = y}`
+  `concretization :: Concreteness a => x:a -> y:a -> EqualProp a {x} {y} -> {x = y}`
   and the equivalence properties are trivially SMT solvable from there.
 - `AEq` is also used to correspond to the `Eq` class from Haskell, but this fact
   isnt actually used anywhere in your source. I think that this is because its
@@ -105,7 +105,7 @@ an example in the paper.) The main departures I made are:
 - retractable instance (use implcit instance )
 - why not type-indexed equality default in LH?
   - as a proof of concept, just turn everything into propositional equalities,
-    and convert to SMT equality when there is Concrete instance
+    and convert to SMT equality when there is Concreteness instance
   - does type-indexed equality require handing off type unificiation (including
     for refinement types) to the SMT solver? because that would be very
     difficult/impossible.
