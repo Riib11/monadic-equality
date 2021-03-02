@@ -51,6 +51,9 @@ HINT: Use the hole '_' instead of the mismatched component (in the Liquid specif
 
 -}
 
+-- TODO: there is an issue using teh `Reflexivity b` typeclass constraint,
+-- it causes a liquid type mismatch somehow...
+
 {-@
 data Monad m = Monad
   { unit :: forall a. a -> m a,
