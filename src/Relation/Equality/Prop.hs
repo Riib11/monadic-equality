@@ -44,17 +44,34 @@ data EqualityProp :: * -> * where
 -}
 
 {-
+### Equality
+
+Combines together the equality properties:
+- reflexivity
+- symmetry
+- transitivity
+- substitutability
+-}
+
+{-@
+class (Reflexivity a, Symmetry a, Transitivity a, Substitutability a) => Equality a where
+  __Equality :: {v:Maybe a | v = Nothing}
+@-}
+class (Reflexivity a, Symmetry a, Transitivity a, Substitutability a) => Equality a where
+  __Equality :: Maybe a
+
+{-
 ### Concreteness
 -}
 
 {-@
-class Concrete a where
+class Concreteness a where
   concreteness :: x:a -> y:a -> EqualProp a {x} {y} -> {_:MyProof | x = y}
 @-}
-class Concrete a where
+class Concreteness a where
   concreteness :: a -> a -> EqualityProp a -> MyProof
 
-instance Eq a => Concrete a where
+instance Eq a => Concreteness a where
   concreteness = concreteness_Eq
 
 {-@ assume
@@ -68,13 +85,13 @@ concreteness_Eq _ _ _ = ()
 -}
 
 {-@
-class Retractable a b where
+class Retractability a b where
   retractability :: f:(a -> b) -> g:(a -> b) -> EqualProp (a -> b) {f} {g} -> (x:a -> EqualProp b {f x} {g x})
 @-}
-class Retractable a b where
+class Retractability a b where
   retractability :: (a -> b) -> (a -> b) -> EqualityProp (a -> b) -> (a -> EqualityProp b)
 
-instance Retractable a b where
+instance Retractability a b where
   retractability f g eqProp_f_g x =
     Substitutability f g (given x) eqProp_f_g
       ? (given x f) -- instantiate `f x`
@@ -85,16 +102,16 @@ instance Retractable a b where
 -}
 
 {-@
-class Reflexive a where
+class Reflexivity a where
   reflexivity :: x:a -> EqualProp a {x} {x}
 @-}
-class Reflexive a where
+class Reflexivity a where
   reflexivity :: a -> EqualityProp a
 
-instance Concrete a => Reflexive a where
+instance Concreteness a => Reflexivity a where
   reflexivity x = FromSMT x x trivial
 
-instance Reflexive b => Reflexive (a -> b) where
+instance Reflexivity b => Reflexivity (a -> b) where
   reflexivity f =
     let eqProp_fx_fx x = reflexivity (f x)
      in Extensionality f f eqProp_fx_fx
@@ -104,19 +121,19 @@ instance Reflexive b => Reflexive (a -> b) where
 -}
 
 {-@
-class Symmetric a where
+class Symmetry a where
   symmetry :: x:a -> y:a -> EqualProp a {x} {y} -> EqualProp a {y} {x}
 @-}
-class Symmetric a where
+class Symmetry a where
   symmetry :: a -> a -> EqualityProp a -> EqualityProp a
 
-instance Concrete a => Symmetric a where
+instance Concreteness a => Symmetry a where
   symmetry x y eqProp_x_y =
     let eq_x_y = concreteness x y eqProp_x_y
         eq_y_x = eq_x_y -- by SMT
      in FromSMT y x eq_y_x
 
-instance (Symmetric b, Retractable a b) => Symmetric (a -> b) where
+instance (Symmetry b, Retractability a b) => Symmetry (a -> b) where
   symmetry f g eqProp_f_g =
     let eqProp_fx_gx = retractability f g eqProp_f_g
         eqProp_gx_fx x = symmetry (f x) (g x) (eqProp_fx_gx x)
@@ -127,20 +144,20 @@ instance (Symmetric b, Retractable a b) => Symmetric (a -> b) where
 -}
 
 {-@
-class Transitive a where
+class Transitivity a where
   transitivity :: x:a -> y:a -> z:a -> EqualProp a {x} {y} -> EqualProp a {y} {z} -> EqualProp a {x} {z}
 @-}
-class Transitive a where
+class Transitivity a where
   transitivity :: a -> a -> a -> EqualityProp a -> EqualityProp a -> EqualityProp a
 
-instance Concrete a => Transitive a where
+instance Concreteness a => Transitivity a where
   transitivity x y z eqProp_x_y eqProp_y_z =
     let eq_x_y = concreteness x y eqProp_x_y
         eq_y_z = concreteness y z eqProp_y_z
         eq_x_z = eq_x_y &&& eq_y_z -- by SMT
      in FromSMT x z eq_x_z
 
-instance (Transitive b, Retractable a b) => Transitive (a -> b) where
+instance (Transitivity b, Retractability a b) => Transitivity (a -> b) where
   transitivity f g h eqProp_f_g eqProp_g_h =
     let eSMT_fx_gx = retractability f g eqProp_f_g
         eSMT_gx_hx = retractability g h eqProp_g_h
@@ -160,3 +177,7 @@ class Substitutability a where
 
 instance Substitutability a where
   substitutability x y c eqProp_x_y = Substitutability x y c eqProp_x_y
+
+{-
+### Equality
+-}
