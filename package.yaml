@@ -55,6 +55,14 @@ tests:
   monadic-equality-test:
     main: Spec.hs
     source-dirs: test
+    default-extensions:
+      - GADTs
+      - KindSignatures
+      - ExplicitForAll
+      - RankNTypes
+      - FlexibleInstances
+      - UndecidableInstances
+      - MultiParamTypeClasses
     ghc-options:
       - -fplugin=LiquidHaskell
       - -fplugin-opt=LiquidHaskell:--reflection

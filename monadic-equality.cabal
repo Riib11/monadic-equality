@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 426c753286a76cbbfc9b598d2c96617b1cc94f96889fe6927a793f2a9960bed4
+-- hash: f1423eee5369905b5db5c88b23bdc5cdbe8812ed10c127b4adda1a54b5a66ebe
 
 name:           monadic-equality
 version:        0.1.0.0
@@ -47,11 +47,14 @@ test-suite monadic-equality-test
   other-modules:
       Example
       Example.Context
+      Example.Monad
+      Example.Reader
       Example.RefinedDomRng
       Example.Reverse
       Paths_monadic_equality
   hs-source-dirs:
       test
+  default-extensions: GADTs KindSignatures ExplicitForAll RankNTypes FlexibleInstances UndecidableInstances MultiParamTypeClasses
   ghc-options: -fplugin=LiquidHaskell -fplugin-opt=LiquidHaskell:--reflection -fplugin-opt=LiquidHaskell:--ple-local -fplugin-opt=LiquidHaskell:--diff -fplugin-opt=LiquidHaskell:--short-names -fplugin-opt=LiquidHaskell:--prune-unsorted
   build-depends:
       liquid-base
