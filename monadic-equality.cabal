@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 1c4a080d66f04fc96075aba8b3174e92333f6c917e1244307f3f8d84e9b0f3f2
+-- hash: 426c753286a76cbbfc9b598d2c96617b1cc94f96889fe6927a793f2a9960bed4
 
 name:           monadic-equality
 version:        0.1.0.0
@@ -28,9 +28,7 @@ source-repository head
 library
   exposed-modules:
       Function
-      ProofCombinators
       Relation.Equality.Prop
-      Relation.Equality.Prop.Example.Reverse
   other-modules:
       Paths_monadic_equality
   hs-source-dirs:
@@ -41,4 +39,23 @@ library
       liquid-base
     , liquid-prelude
     , liquidhaskell ==0.8.10.2
+  default-language: Haskell2010
+
+test-suite monadic-equality-test
+  type: exitcode-stdio-1.0
+  main-is: Spec.hs
+  other-modules:
+      Example
+      Example.Context
+      Example.RefinedDomRng
+      Example.Reverse
+      Paths_monadic_equality
+  hs-source-dirs:
+      test
+  ghc-options: -fplugin=LiquidHaskell -fplugin-opt=LiquidHaskell:--reflection -fplugin-opt=LiquidHaskell:--ple-local -fplugin-opt=LiquidHaskell:--diff -fplugin-opt=LiquidHaskell:--short-names -fplugin-opt=LiquidHaskell:--prune-unsorted
+  build-depends:
+      liquid-base
+    , liquid-prelude
+    , liquidhaskell ==0.8.10.2
+    , monadic-equality
   default-language: Haskell2010

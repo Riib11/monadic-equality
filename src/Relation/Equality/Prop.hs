@@ -3,11 +3,18 @@
 module Relation.Equality.Prop where
 
 import Function
-import ProofCombinators
+import Language.Haskell.Liquid.ProofCombinators
 
 {-
 # Propositional Equality
 -}
+
+-- why do i need to do this... for some reason doesnt see `Proof` from
+-- import `ProofCombinators` at refinement level?????
+{-@
+type MyProof = ()
+@-}
+type MyProof = ()
 
 {-
 ## Definition
@@ -23,12 +30,12 @@ type EqualProp a X Y = {w:EqualityProp a | eqprop X Y w}
 
 {-@
 data EqualityProp :: * -> * where
-    FromSMT :: x:a -> y:a -> {_:Proof | x = y} -> EqualProp a {x} {y}
+    FromSMT :: x:a -> y:a -> {_:() | x = y} -> EqualProp a {x} {y}
   | Extensionality :: f:(a -> b) -> g:(a -> b) -> (x:a -> EqualProp b {f x} {g x}) -> EqualProp (a -> b) {f} {g}
   | Substitutability :: x:a -> y:a -> c:(a -> b) -> EqualProp a {x} {y} -> EqualProp b {c x} {c y}
 @-}
 data EqualityProp :: * -> * where
-  FromSMT :: a -> a -> Proof -> EqualityProp a
+  FromSMT :: a -> a -> MyProof -> EqualityProp a
   Extensionality :: (a -> b) -> (a -> b) -> (a -> EqualityProp b) -> EqualityProp (a -> b)
   Substitutability :: a -> a -> (a -> b) -> EqualityProp a -> EqualityProp b
 
@@ -42,18 +49,18 @@ data EqualityProp :: * -> * where
 
 {-@
 class Concrete a where
-  concreteness :: x:a -> y:a -> EqualProp a {x} {y} -> {_:Proof | x = y}
+  concreteness :: x:a -> y:a -> EqualProp a {x} {y} -> {_:MyProof | x = y}
 @-}
 class Concrete a where
-  concreteness :: a -> a -> EqualityProp a -> Proof
+  concreteness :: a -> a -> EqualityProp a -> MyProof
 
 instance Eq a => Concrete a where
   concreteness = concreteness_Eq
 
 {-@ assume
-concreteness_Eq :: Eq a => x:a -> y:a -> EqualProp a {x} {y} -> {_:Proof | x = y}
+concreteness_Eq :: Eq a => x:a -> y:a -> EqualProp a {x} {y} -> {_:MyProof | x = y}
 @-}
-concreteness_Eq :: Eq a => a -> a -> EqualityProp a -> Proof
+concreteness_Eq :: Eq a => a -> a -> EqualityProp a -> MyProof
 concreteness_Eq _ _ _ = ()
 
 {-

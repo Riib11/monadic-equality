@@ -1,8 +1,8 @@
-module Relation.Equality.Prop.Example.Reverse where
+module Example.Reverse where
 
 import Function
--- import Language.Haskell.Liquid.ProofCombinators
 import Language.Haskell.Liquid.Equational
+-- import Language.Haskell.Liquid.ProofCombinators
 import Relation.Equality.Prop
 
 {-

@@ -50,3 +50,17 @@ library:
     - -fplugin-opt=LiquidHaskell:--diff
     - -fplugin-opt=LiquidHaskell:--short-names
     - -fplugin-opt=LiquidHaskell:--prune-unsorted
+
+tests:
+  monadic-equality-test:
+    main: Spec.hs
+    source-dirs: test
+    ghc-options:
+      - -fplugin=LiquidHaskell
+      - -fplugin-opt=LiquidHaskell:--reflection
+      - -fplugin-opt=LiquidHaskell:--ple-local
+      - -fplugin-opt=LiquidHaskell:--diff
+      - -fplugin-opt=LiquidHaskell:--short-names
+      - -fplugin-opt=LiquidHaskell:--prune-unsorted
+    dependencies:
+      - monadic-equality
