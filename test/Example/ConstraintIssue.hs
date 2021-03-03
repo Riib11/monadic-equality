@@ -39,4 +39,4 @@ HINT: Use the hole '_' instead of the mismatched component (in the Liquid specif
 
 -}
 
-data R m = R {r :: forall a. Eq a => a -> m a}
+-- data R m = R {r :: forall a. Eq a => a -> m a}

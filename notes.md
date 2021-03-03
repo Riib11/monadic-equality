@@ -185,3 +185,11 @@ data Monad m = Monad
   issue in LH
 - one way to overcome this would be to actually somehow get a
   `forall x. Reflexivity x` like instanec. this would be very clean, but how?
+
+- added `EqSMT` as a proxy for SMT equality when assuming derivation for
+  `EqSMT a => Concreteness a`. I need to assume because i cant pattern match on
+  `EqualProp`. previously i was relying on just `Eq`, but that is actually an
+  extra assumption i shouldnt make because `Eq` instances may not be in line
+  with SMT equality. `EqSMT` ensures this by providing a function that must
+  correspond to SMT equality
+  `eqSMT :: x:a -> y:a -> {b:Bool | ((x = y) => b) && (b => (x = y))}`

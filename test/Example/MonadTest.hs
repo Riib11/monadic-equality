@@ -54,25 +54,25 @@ HINT: Use the hole '_' instead of the mismatched component (in the Liquid specif
 -- TODO: there is an issue using teh `Reflexivity b` typeclass constraint,
 -- it causes a liquid type mismatch somehow...
 
-{-@
-data Monad m = Monad
-  { unit :: forall a. a -> m a,
-    bind :: forall a b. m a -> (a -> m b) -> m b,
-    identityLeft ::
-      forall a b.
-      Reflexivity b =>
-      x:a ->
-      k:(a -> m b) ->
-      EqualProp (m b) {bind (unit x) k} {k x}
-  }
-@-}
-data Monad m = Monad
-  { unit :: forall a. a -> m a,
-    bind :: forall a b. m a -> (a -> m b) -> m b,
-    identityLeft ::
-      forall a b.
-      Reflexivity b =>
-      a ->
-      (a -> m b) ->
-      EqualityProp (m b)
-  }
+-- {-@
+-- data Monad m = Monad
+--   { unit :: forall a. a -> m a,
+--     bind :: forall a b. m a -> (a -> m b) -> m b,
+--     identityLeft ::
+--       forall a b.
+--       Eq b =>
+--       x:a ->
+--       k:(a -> m b) ->
+--       EqualProp (m b) {bind (unit x) k} {k x}
+--   }
+-- @-}
+-- data Monad m = Monad
+--   { unit :: forall a. a -> m a,
+--     bind :: forall a b. m a -> (a -> m b) -> m b,
+--     identityLeft ::
+--       forall a b.
+--       Eq b =>
+--       a ->
+--       (a -> m b) ->
+--       EqualityProp (m b)
+--   }
