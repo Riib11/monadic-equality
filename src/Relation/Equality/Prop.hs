@@ -9,13 +9,6 @@ import Language.Haskell.Liquid.ProofCombinators
 # Propositional Equality
 -}
 
--- -- why do i need to do this... for some reason doesnt see `Proof` from
--- -- import `ProofCombinators` at refinement level?????
--- {-@
--- type Proof = ()
--- @-}
--- type Proof = ()
-
 {-
 ## Definition
 -}
