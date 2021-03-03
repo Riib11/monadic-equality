@@ -100,7 +100,7 @@ an example in the paper.) The main departures I made are:
 
 ## February 24
 
-- response to Nik
+- response to Nikki
 - explanation of why abandoned abstract refinements
 - retractable instance (use implcit instance )
 - why not type-indexed equality default in LH?
@@ -116,3 +116,72 @@ an example in the paper.) The main departures I made are:
   replace some things, or not?
   - how to make use of my work -- perhaps present it on its own? or have the
     monadic quicksort proof stuff on top to show it working?
+
+### March 3
+
+- [new problem with constraining quantified types in record fields](https://liquidhaskell.slack.com/archives/C54QAL9RR/p1614785461049900)
+- this is needed in order to write a refined `Monad` class looking something
+  like
+
+```haskell
+{-@
+data Monad m = Monad
+  { unit :: forall a. a -> m a,
+    bind :: forall a b. m a -> (a -> m b) -> m b,
+    identityLeft ::
+      forall a b.
+      (y:b -> EqualProp b {y} {y}) ->
+      x:a ->
+      k:(a -> m b) ->
+      EqualProp (m b) {bind (unit x) k} {k x},
+    identityRight ::
+      forall a.
+      (x:a -> EqualProp a {x} {x}) ->
+      m:m a ->
+      EqualProp (m a) {bind m unit} {m},
+    associativity ::
+      forall a b c.
+      (x:c -> EqualProp c {x} {x}) ->
+      (x:c -> y:c -> z:c -> EqualProp c {x} {y} -> EqualProp c {y} {z} -> EqualProp c {x} {z}) ->
+      m:m a ->
+      k1:(a -> m b) ->
+      k2:(b -> m c) ->
+      EqualProp (m c) {bind (bind m k1) k2} {bind m (\x:a -> bind (k1 x) k2)}
+  }
+@-}
+data Monad m = Monad
+  { unit :: forall a. a -> m a,
+    bind :: forall a b. m a -> (a -> m b) -> m b,
+    identityLeft ::
+      forall a b.
+      Equality b ->
+      (b -> EqualityProp b) ->
+      a ->
+      (a -> m b) ->
+      EqualityProp (m b),
+    identityRight ::
+      forall a.
+      Equality a ->
+      (a -> EqualityProp a) ->
+      m a ->
+      EqualityProp (m a),
+    associativity ::
+      forall a b c.
+      (Equality c, Equality c) ->
+      (c -> EqualityProp c) ->
+      (c -> c -> c -> EqualityProp c -> EqualityProp c -> EqualityProp c) ->
+      m a ->
+      (a -> m b) ->
+      (b -> m c) ->
+      EqualityProp (m c)
+  }
+```
+
+- I need to quality `Equal x`, which provides `Reflexivity x`, etc because class
+  induction doesnt give me a `forall x. Reflexivity x` instance. It needs to use
+  the induction as a constraint.
+- for some reason, the above code gives a liquid error, the simplest example in
+  the link above. it should work in normal haskell, so idk why its causing an
+  issue in LH
+- one way to overcome this would be to actually somehow get a
+  `forall x. Reflexivity x` like instanec. this would be very clean, but how?

@@ -37,6 +37,7 @@ library:
     - FlexibleInstances
     - UndecidableInstances
     - MultiParamTypeClasses
+    - ScopedTypeVariables
   ghc-options:
     - -Wall
     - -Wno-name-shadowing
