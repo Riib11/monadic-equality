@@ -9,12 +9,12 @@ import Language.Haskell.Liquid.ProofCombinators
 # Propositional Equality
 -}
 
--- why do i need to do this... for some reason doesnt see `Proof` from
--- import `ProofCombinators` at refinement level?????
-{-@
-type MyProof = ()
-@-}
-type MyProof = ()
+-- -- why do i need to do this... for some reason doesnt see `Proof` from
+-- -- import `ProofCombinators` at refinement level?????
+-- {-@
+-- type Proof = ()
+-- @-}
+-- type Proof = ()
 
 {-
 ## Definition
@@ -35,7 +35,7 @@ data EqualityProp :: * -> * where
   | Substitutability :: x:a -> y:a -> c:(a -> b) -> EqualProp a {x} {y} -> EqualProp b {c x} {c y}
 @-}
 data EqualityProp :: * -> * where
-  FromSMT :: a -> a -> MyProof -> EqualityProp a
+  FromSMT :: a -> a -> Proof -> EqualityProp a
   Extensionality :: (a -> b) -> (a -> b) -> (a -> EqualityProp b) -> EqualityProp (a -> b)
   Substitutability :: a -> a -> (a -> b) -> EqualityProp a -> EqualityProp b
 
@@ -61,24 +61,35 @@ class (Reflexivity a, Symmetry a, Transitivity a, Substitutability a) => Equalit
   __Equality :: Maybe a
 
 {-
+### SMT Equality
+-}
+
+{-@
+class EqSMT a where
+  eqSMT :: x:a -> y:a -> {b:Bool | ((x = y) => b) && (b => (x = y))}
+@-}
+class EqSMT a where
+  eqSMT :: a -> a -> Bool
+
+{-
 ### Concreteness
 -}
 
 {-@
 class Concreteness a where
-  concreteness :: x:a -> y:a -> EqualProp a {x} {y} -> {_:MyProof | x = y}
+  concreteness :: x:a -> y:a -> EqualProp a {x} {y} -> {_:Proof | x = y}
 @-}
 class Concreteness a where
-  concreteness :: a -> a -> EqualityProp a -> MyProof
+  concreteness :: a -> a -> EqualityProp a -> Proof
 
-instance Eq a => Concreteness a where
-  concreteness = concreteness_Eq
+instance EqSMT a => Concreteness a where
+  concreteness x y pf = concreteness_EqSMT x y pf
 
 {-@ assume
-concreteness_Eq :: Eq a => x:a -> y:a -> EqualProp a {x} {y} -> {_:MyProof | x = y}
+concreteness_EqSMT :: EqSMT a => x:a -> y:a -> EqualProp a {x} {y} -> {_:Proof | x = y}
 @-}
-concreteness_Eq :: Eq a => a -> a -> EqualityProp a -> MyProof
-concreteness_Eq _ _ _ = ()
+concreteness_EqSMT :: EqSMT a => a -> a -> EqualityProp a -> Proof
+concreteness_EqSMT _ _ _ = ()
 
 {-
 ### Retractability
