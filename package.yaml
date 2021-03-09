@@ -64,6 +64,7 @@ tests:
       - FlexibleInstances
       - UndecidableInstances
       - MultiParamTypeClasses
+      - ScopedTypeVariables
     ghc-options:
       - -fplugin=LiquidHaskell
       - -fplugin-opt=LiquidHaskell:--reflection

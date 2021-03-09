@@ -1,5 +1,3 @@
-{-# LANGUAGE ScopedTypeVariables #-}
-
 module Relation.Equality.Prop where
 
 import Function
@@ -181,7 +179,3 @@ class Substitutability a where
 
 instance Substitutability a where
   substitutability x y c eqProp_x_y = Substitutability x y c eqProp_x_y
-
-{-
-### Equality
--}
