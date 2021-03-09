@@ -31,17 +31,12 @@ class MonadLaws m where
   bind_identity_right :: forall a. (Equality a) => mnd:Monad m -> m:m a ->
     (EqualProp (m a) {bind mnd m (pure mnd)} {m})
   bind_associativity :: forall a b c. (Equality a, Equality b, Equality c) => mnd:Monad m -> m:m a -> k1:(a -> m b) -> k2:(b -> m c) ->
-    (EqualProp (m c) {bind mnd (bind mnd m k1) k2} {bind mnd m (bind_associativity_aux mnd k1 k2)})
+    (EqualProp (m c) {bind mnd (bind mnd m k1) k2} {bind mnd m (kleisli mnd k1 k2)})
 @-}
 class MonadLaws m where
   bind_identity_left :: forall a b. (Equality a, Equality b) => Monad m -> a -> (a -> m b) -> EqualityProp (m b)
   bind_identity_right :: forall a. (Equality a) => Monad m -> m a -> EqualityProp (m a)
   bind_associativity :: forall a b c. (Equality a, Equality b, Equality c) => Monad m -> m a -> (a -> m b) -> (b -> m c) -> EqualityProp (m c)
-
--- originally: (\x:a -> bind mnd (k1 x) k2)
-{-@ reflect bind_associativity_aux @-}
-bind_associativity_aux :: Monad m -> (a -> m b) -> (b -> m c) -> a -> m c
-bind_associativity_aux mnd k1 k2 x = bind mnd (k1 x) k2
 
 {-
 TODO: still getting this error... (now confirmed to be a bug)
