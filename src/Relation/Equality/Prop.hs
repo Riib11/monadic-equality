@@ -179,3 +179,39 @@ class Substitutability a where
 
 instance Substitutability a where
   substitutability x y c eqProp_x_y = Substitutability x y c eqProp_x_y
+
+{-
+## Equational reasoning
+-}
+
+-- (?~) ::
+--   a ->
+--   EqualityProp a ->
+--   (a, EqualityProp a)
+-- y ?~ ep_x_y = (y, ep_x_y)
+
+-- {-@
+-- (==~) ::
+--   Equality a =>
+--   x:a ->
+--   (y::a, {ep_x_y:EqualityProp a | eqprop x y}) ->
+--   (x'::a, z:a -> {ep_y_z:EqualityProp a | } -> EqualityProp a)
+-- @-}
+-- (==~) ::
+--   Equality a =>
+--   a ->
+--   (a, EqualityProp a) ->
+--   (a, a -> EqualityProp a -> EqualityProp a)
+-- x ==~ (y, ep_x_y) = (x, \z ep_y_z -> transitivity x y z ep_x_y ep_y_z)
+
+-- (~=~) ::
+--   (a, a -> EqualityProp a -> EqualityProp a) ->
+--   (a, a -> EqualityProp a -> EqualityProp a) ->
+--   (a, a -> EqualityProp a -> EqualityProp a)
+-- (x, k_y_z) ~=~ (z, pf_y_z) = (x, \w pf_z_w -> transitivity x z w (k z pf_y_z))
+
+-- (~==) ::
+--   (a, a -> EqualityProp a -> EqualityProp a) ->
+--   (a, EqualityProp a) ->
+--   (a, EqualityProp a)
+-- (x, k_x_z) ~== (z, ep_y_z) = k_x_z z ep_y_z
