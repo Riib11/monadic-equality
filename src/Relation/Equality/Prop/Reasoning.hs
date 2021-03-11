@@ -126,6 +126,21 @@ fact that `?~` doesn't deal with refinement info (and it couldn't lifted to
 the refinement level, since its second argument `exy` mentions a refinement-
 level variable that is not in `~?`'s scope. This sort of pattern works with the
 liquid-prelude's `?` though... so I was trying to mimic that.)
+
+It produces the following error:
+```
+The inferred type
+  VV : {v : (a, (Relation.Equality.Prop.EqualityProp a)) | v == ?~ x (reflexivity x)}
+
+is not a subtype of the required type
+  VV : {VV : (a, (Relation.Equality.Prop.EqualityProp a)) | eqprop x (fst VV)}
+
+in the context
+  x : a
+    |
+129 |   let ((x1, x2), kx1x3) = x =~ x ?~ reflexivity x
+    |                                ^^^^^^^^^^^^^^^^^^
+```
 -}
 {-@
 ex3 :: Equality a => x:a -> EqualProp a {x} {x}
