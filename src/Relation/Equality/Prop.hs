@@ -12,23 +12,52 @@ import Language.Haskell.Liquid.ProofCombinators
 -}
 
 {-@
-measure eqprop :: a -> a -> EqualityProp a -> Bool
+measure eqprop :: a -> a -> Bool
 @-}
 
-{-@
-type EqualProp a X Y = {w:EqualityProp a | eqprop X Y w}
-@-}
+data EqualityProp a = EqualityProp
 
 {-@
-data EqualityProp :: * -> * where
-    FromSMT :: x:a -> y:a -> {_:() | x = y} -> EqualProp a {x} {y}
-  | Extensionality :: f:(a -> b) -> g:(a -> b) -> (x:a -> EqualProp b {f x} {g x}) -> EqualProp (a -> b) {f} {g}
-  | Substitutability :: x:a -> y:a -> c:(a -> b) -> EqualProp a {x} {y} -> EqualProp b {c x} {c y}
+type EqualProp a X Y = {w:EqualityProp a | eqprop X Y}
 @-}
-data EqualityProp :: * -> * where
-  FromSMT :: a -> a -> Proof -> EqualityProp a
-  Extensionality :: (a -> b) -> (a -> b) -> (a -> EqualityProp b) -> EqualityProp (a -> b)
-  Substitutability :: a -> a -> (a -> b) -> EqualityProp a -> EqualityProp b
+
+{-
+### Axioms
+-}
+
+{-@ assume
+fromSMT :: x:a -> y:a -> {_:Proof | x = y} -> EqualProp a {x} {y}
+@-}
+fromSMT :: a -> a -> Proof -> EqualityProp a
+fromSMT x y pf = EqualityProp
+
+{-@ assume
+extensionality :: f:(a -> b) -> g:(a -> b) -> (x:a -> EqualProp b {f x} {g x}) -> EqualProp (a -> b) {f} {g}
+@-}
+extensionality :: (a -> b) -> (a -> b) -> (a -> EqualityProp b) -> EqualityProp (a -> b)
+extensionality f g pf = EqualityProp
+
+{-@ assume
+substitutability :: f:(a -> b) -> x:a -> y:a -> EqualProp a {x} {y} -> EqualProp b {f x} {f y}
+@-}
+substitutability :: (a -> b) -> a -> a -> EqualityProp a -> EqualityProp b
+substitutability f x y pf = EqualityProp
+
+{-
+### Witnesses
+-}
+
+{-@ assume
+toWitness :: x:a -> y:a -> {_:t | eqprop x y} -> EqualProp a {x} {y}
+@-}
+toWitness :: a -> a -> t -> EqualityProp a
+toWitness x y pf = EqualityProp
+
+{-@
+fromWitness :: x:a -> y:a -> EqualProp a {x} {y} -> {_:Proof | eqprop x y}
+@-}
+fromWitness :: a -> a -> EqualityProp a -> Proof
+fromWitness x y pf = trivial
 
 {-
 ## Properties
@@ -45,10 +74,10 @@ Combines together the equality properties:
 -}
 
 {-@
-class (Reflexivity a, Symmetry a, Transitivity a, Substitutability a) => Equality a where
+class (Reflexivity a, Symmetry a, Transitivity a) => Equality a where
   __Equality :: {v:Maybe a | v = Nothing}
 @-}
-class (Reflexivity a, Symmetry a, Transitivity a, Substitutability a) => Equality a where
+class (Reflexivity a, Symmetry a, Transitivity a) => Equality a where
   __Equality :: Maybe a
 
 {-
@@ -94,8 +123,8 @@ class Retractability a b where
   retractability :: (a -> b) -> (a -> b) -> EqualityProp (a -> b) -> (a -> EqualityProp b)
 
 instance Retractability a b where
-  retractability f g eqProp_f_g x =
-    Substitutability f g (given x) eqProp_f_g
+  retractability f g efg x =
+    substitutability (given x) f g efg
       ? (given x f) -- instantiate `f x`
       ? (given x g) -- instantiate `g x`
 
@@ -111,12 +140,12 @@ class Reflexivity a where
   reflexivity :: a -> EqualityProp a
 
 instance Concreteness a => Reflexivity a where
-  reflexivity x = FromSMT x x trivial
+  reflexivity x = fromSMT x x trivial
 
 instance Reflexivity b => Reflexivity (a -> b) where
   reflexivity f =
-    let eqProp_fx_fx x = reflexivity (f x)
-     in Extensionality f f eqProp_fx_fx
+    let efxfx x = reflexivity (f x)
+     in extensionality f f efxfx
 
 {-
 ### Symmetry
@@ -130,16 +159,16 @@ class Symmetry a where
   symmetry :: a -> a -> EqualityProp a -> EqualityProp a
 
 instance Concreteness a => Symmetry a where
-  symmetry x y eqProp_x_y =
-    let eq_x_y = concreteness x y eqProp_x_y
-        eq_y_x = eq_x_y -- by SMT
-     in FromSMT y x eq_y_x
+  symmetry x y exy =
+    let e_x_y = concreteness x y exy
+        e_y_x = e_x_y -- by SMT
+     in fromSMT y x e_y_x
 
 instance (Symmetry b, Retractability a b) => Symmetry (a -> b) where
-  symmetry f g eqProp_f_g =
-    let eqProp_fx_gx = retractability f g eqProp_f_g
-        eqProp_gx_fx x = symmetry (f x) (g x) (eqProp_fx_gx x)
-     in Extensionality g f eqProp_gx_fx
+  symmetry f g efg =
+    let epfxgx = retractability f g efg
+        egxfx x = symmetry (f x) (g x) (epfxgx x)
+     in extensionality g f egxfx
 
 {-
 ### Transitivity
@@ -153,65 +182,35 @@ class Transitivity a where
   transitivity :: a -> a -> a -> EqualityProp a -> EqualityProp a -> EqualityProp a
 
 instance Concreteness a => Transitivity a where
-  transitivity x y z eqProp_x_y eqProp_y_z =
-    let eq_x_y = concreteness x y eqProp_x_y
-        eq_y_z = concreteness y z eqProp_y_z
-        eq_x_z = eq_x_y &&& eq_y_z -- by SMT
-     in FromSMT x z eq_x_z
+  transitivity x y z exy eyz =
+    let e_x_y = concreteness x y exy
+        e_y_z = concreteness y z eyz
+        e_x_z = e_x_y &&& e_y_z -- by SMT
+     in fromSMT x z e_x_z
 
 instance (Transitivity b, Retractability a b) => Transitivity (a -> b) where
-  transitivity f g h eqProp_f_g eqProp_g_h =
-    let eSMT_fx_gx = retractability f g eqProp_f_g
-        eSMT_gx_hx = retractability g h eqProp_g_h
-        eSMT_fx_hx x = transitivity (f x) (g x) (h x) (eSMT_fx_gx x) (eSMT_gx_hx x)
-     in Extensionality f h eSMT_fx_hx
+  transitivity f g h efg egh =
+    let es_fx_gx = retractability f g efg
+        es_gx_hx = retractability g h egh
+        es_fx_hx x = transitivity (f x) (g x) (h x) (es_fx_gx x) (es_gx_hx x)
+     in extensionality f h es_fx_hx
 
 {-
-### Substitutability
+## Lemmas
 -}
 
 {-@
-class Substitutability a where
-  substitutability :: forall b. x:a -> y:a -> c:(a -> b) -> EqualProp a {x} {y} -> EqualProp b {c x} {c y}
+alphaEquivalency :: Equality b => f:(a -> b) -> EqualProp (a -> b) {f} {(\x:a -> f x)}
 @-}
-class Substitutability a where
-  substitutability :: forall b. a -> a -> (a -> b) -> EqualityProp a -> EqualityProp b
+alphaEquivalency :: Equality b => (a -> b) -> EqualityProp (a -> b)
+alphaEquivalency f =
+  extensionality f (\x -> f x) $ \x ->
+    -- TODO: why does this not go through?
+    -- reflexivity (f x) ? f x ? (\x -> f x) x
+    undefined
 
-instance Substitutability a where
-  substitutability x y c eqProp_x_y = Substitutability x y c eqProp_x_y
-
-{-
-## Equational reasoning
--}
-
--- (?~) ::
---   a ->
---   EqualityProp a ->
---   (a, EqualityProp a)
--- y ?~ ep_x_y = (y, ep_x_y)
-
--- {-@
--- (==~) ::
---   Equality a =>
---   x:a ->
---   (y::a, {ep_x_y:EqualityProp a | eqprop x y}) ->
---   (x'::a, z:a -> {ep_y_z:EqualityProp a | } -> EqualityProp a)
--- @-}
--- (==~) ::
---   Equality a =>
---   a ->
---   (a, EqualityProp a) ->
---   (a, a -> EqualityProp a -> EqualityProp a)
--- x ==~ (y, ep_x_y) = (x, \z ep_y_z -> transitivity x y z ep_x_y ep_y_z)
-
--- (~=~) ::
---   (a, a -> EqualityProp a -> EqualityProp a) ->
---   (a, a -> EqualityProp a -> EqualityProp a) ->
---   (a, a -> EqualityProp a -> EqualityProp a)
--- (x, k_y_z) ~=~ (z, pf_y_z) = (x, \w pf_z_w -> transitivity x z w (k z pf_y_z))
-
--- (~==) ::
---   (a, a -> EqualityProp a -> EqualityProp a) ->
---   (a, EqualityProp a) ->
---   (a, EqualityProp a)
--- (x, k_x_z) ~== (z, ep_y_z) = k_x_z z ep_y_z
+{-@
+betaEquivalencyTrivial :: Equality b => x:a -> y:b -> EqualProp b {y} {apply (\_:a -> y) x}
+@-}
+betaEquivalencyTrivial :: Equality b => a -> b -> EqualityProp b
+betaEquivalencyTrivial = undefined
