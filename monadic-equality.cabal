@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 2d709b55fa83c24bd0b7b3ed671c78e8d31cf911188022ae89fe41bfcfcd4583
+-- hash: 27297aa10b9cbab6ee48a742ae07fc57c157a9856e08db26b25820a14120f9b0
 
 name:           monadic-equality
 version:        0.1.0.0
@@ -35,6 +35,7 @@ library
       Relation.Equality.Prop
       Relation.Equality.Prop.Reasoning
       Relation.Equality.Prop.Reasoning1
+      Relation.Equality.PropBlind
   other-modules:
       Paths_monadic_equality
   hs-source-dirs:

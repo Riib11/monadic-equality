@@ -108,15 +108,15 @@ is not a subtype of the required type
   VV : {VV : (Relation.Equality.Prop.EqualityProp a) | eqprop (fst ?a) z}
 ```
 -}
-{-@
-ex2 :: Equality a => x:a -> EqualProp a {x} {x}
-@-}
-ex2 :: Equality a => a -> EqualityProp a
-ex2 x =
-  x
-    =~ (x, reflexivity x)
-    ~=~ (x, reflexivity x)
-    ~** QED
+-- {-@
+-- ex2 :: Equality a => x:a -> EqualProp a {x} {x}
+-- @-}
+-- ex2 :: Equality a => a -> EqualityProp a
+-- ex2 x =
+--   x
+--     =~ (x, reflexivity x)
+--     ~=~ (x, reflexivity x)
+--     ~** QED
 
 {-
 `ex3` is UNSAFE as well... with its only difference from the SAFE `ex1` being
@@ -142,11 +142,11 @@ in the context
     |                                ^^^^^^^^^^^^^^^^^^
 ```
 -}
-{-@
-ex3 :: Equality a => x:a -> EqualProp a {x} {x}
-@-}
-ex3 :: Equality a => a -> EqualityProp a
-ex3 x =
-  let ((x1, x2), kx1x3) = x =~ x ?~ reflexivity x
-      ((x1', x3), kx1x4) = ((x1, x2), kx1x3) ~=~ x ?~ reflexivity x
-   in ((x1', x3), kx1x4) ~** QED
+-- {-@
+-- ex3 :: Equality a => x:a -> EqualProp a {x} {x}
+-- @-}
+-- ex3 :: Equality a => a -> EqualityProp a
+-- ex3 x =
+--   let ((x1, x2), kx1x3) = x =~ x ?~ reflexivity x
+--       ((x1', x3), kx1x4) = ((x1, x2), kx1x3) ~=~ x ?~ reflexivity x
+--    in ((x1', x3), kx1x4) ~** QED
