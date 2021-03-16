@@ -342,3 +342,12 @@ ex3 x =
       ((x1', x3), kx1x4) = ((x1, x2), kx1x3) ~=~ x ?~ reflexivity x
    in ((x1', x3), kx1x4) ~** QED
 ```
+
+## March 16
+
+Actually, I don't think I need `fromSMT`. I misunderstood how SMT equality is
+working in the background. There is a reflexivity axiom for SMT that works even
+on non-function types. Really, SMT equality is working substitutionally. So, all
+I need is a reflexivity axiom for propositional equality, and I get `fromSMT`
+for free. Since an SMT equality of `x = y` can replace `y` with `x` in the
+propositonal equality `eqprop x x` to get `eqprop x y`.
