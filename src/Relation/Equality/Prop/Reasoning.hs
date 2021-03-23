@@ -24,8 +24,8 @@ y ?~ exy = (y, exy)
 (=~) ::
   Equality a =>
   x:a ->
-  {y_exy:(a, EqualityProp a) | eqprop x (fst y_exy)} ->
-  {x_y_kxz:((a, a), z:a -> {_:EqualityProp a | eqprop (fst y_exy) z} -> {_:EqualityProp a | eqprop x z}) | fst (fst x_y_kxz) = x && snd (fst x_y_kxz) = fst y_exy}
+  {y_exy:(a, EqualityProp a) | x = fst y_exy} ->
+  {x_y_kxz:((a, a), z:a -> {_:EqualityProp a | fst y_exy = z} -> {_:EqualityProp a | x = z}) | fst (fst x_y_kxz) = x && snd (fst x_y_kxz) = fst y_exy}
 @-}
 (=~) ::
   Equality a =>
@@ -37,9 +37,9 @@ x =~ (y, exy) = ((x, y), \z eyz -> transitivity x y z exy eyz)
 {-@
 (~=~) ::
   Equality a =>
-  x_y_kxz:(x_y::(a, a), z:a -> {_:EqualityProp a | eqprop (snd x_y) z} -> {_:EqualityProp a | eqprop (fst x_y) z}) ->
-  {z_eyz:(a, EqualityProp a) | eqprop (snd (fst x_y_kxz)) (fst z_eyz)} ->
-  {x_z_kxw:((a, a), w:a -> {_:EqualityProp a | eqprop (fst z_eyz) w} -> {_:EqualityProp a | eqprop (fst (fst x_y_kxz)) w}) | fst (fst x_z_kxw) = fst (fst x_y_kxz) && snd (fst x_z_kxw) = fst z_eyz}
+  x_y_kxz:(x_y::(a, a), z:a -> {_:EqualityProp a | snd x_y = z} -> {_:EqualityProp a | fst x_y = z}) ->
+  {z_eyz:(a, EqualityProp a) | snd (fst x_y_kxz) = fst z_eyz} ->
+  {x_z_kxw:((a, a), w:a -> {_:EqualityProp a | fst z_eyz = w} -> {_:EqualityProp a | fst (fst x_y_kxz) = w}) | fst (fst x_z_kxw) = fst (fst x_y_kxz) && snd (fst x_z_kxw) = fst z_eyz}
 @-}
 (~=~) ::
   Equality a =>
@@ -51,9 +51,9 @@ x =~ (y, exy) = ((x, y), \z eyz -> transitivity x y z exy eyz)
 {-@ assume
 (~**) ::
   Equality a =>
-  x_y_kxz:(x_y::(a, a), z:a -> {_:EqualityProp a | eqprop (snd x_y) z} -> {_:EqualityProp a | eqprop (fst x_y) z}) ->
+  x_y_kxz:(x_y::(a, a), z:a -> {_:EqualityProp a | snd x_y = z} -> {_:EqualityProp a | fst x_y = z}) ->
   qed:QED ->
-  {_:EqualityProp a | if (isAdmit qed) then false else eqprop (fst (fst x_y_kxz)) (snd (fst x_y_kxz))}
+  {_:EqualityProp a | if (isAdmit qed) then false else fst (fst x_y_kxz) = snd (fst x_y_kxz)}
 @-}
 (~**) ::
   Equality a =>
@@ -105,7 +105,7 @@ The inferred type
 
 is not a subtype of the required type
 
-  VV : {VV : (Relation.Equality.Prop.EqualityProp a) | eqprop (fst ?a) z}
+  VV : {VV : (Relation.Equality.Prop.EqualityProp a) | fst ?a = z}
 ```
 -}
 -- {-@
@@ -133,7 +133,7 @@ The inferred type
   VV : {v : (a, (Relation.Equality.Prop.EqualityProp a)) | v == ?~ x (reflexivity x)}
 
 is not a subtype of the required type
-  VV : {VV : (a, (Relation.Equality.Prop.EqualityProp a)) | eqprop x (fst VV)}
+  VV : {VV : (a, (Relation.Equality.Prop.EqualityProp a)) | x = fst VV}
 
 in the context
   x : a

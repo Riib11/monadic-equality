@@ -11,33 +11,27 @@ import Language.Haskell.Liquid.ProofCombinators
 ## Definition
 -}
 
-{-@
-measure eqprop :: a -> a -> Bool
-@-}
-
 data EqualityProp a = EqualityProp
 
 {-@
-type EqualProp a X Y = {w:EqualityProp a | eqprop X Y}
+type EqualProp a X Y = {w:EqualityProp a | X = Y}
 @-}
 
 {-
 ### Axioms
 -}
 
--- * redundant
-
--- {-@ assume
--- fromSMT :: x:a -> y:a -> {_:Proof | x = y} -> EqualProp a {x} {y}
--- @-}
--- fromSMT :: a -> a -> Proof -> EqualityProp a
--- fromSMT x y pf = EqualityProp
-
 {-@ assume
 reflexivity :: x:a -> EqualProp a {x} {x}
 @-}
 reflexivity :: a -> EqualityProp a
 reflexivity x = EqualityProp
+
+{-@
+fromSMT :: x:a -> y:a -> {_:Proof | x = y} -> EqualProp a {x} {y}
+@-}
+fromSMT :: a -> a -> Proof -> EqualityProp a
+fromSMT x y pf = reflexivity x
 
 {-@ assume
 extensionality :: f:(a -> b) -> g:(a -> b) -> (x:a -> EqualProp b {f x} {g x}) -> EqualProp (a -> b) {f} {g}
@@ -56,13 +50,13 @@ substitutability f x y pf = EqualityProp
 -}
 
 {-@ assume
-toWitness :: x:a -> y:a -> {_:t | eqprop x y} -> EqualProp a {x} {y}
+toWitness :: x:a -> y:a -> {_:t | x = y} -> EqualProp a {x} {y}
 @-}
 toWitness :: a -> a -> t -> EqualityProp a
 toWitness x y pf = EqualityProp
 
 {-@
-fromWitness :: x:a -> y:a -> EqualProp a {x} {y} -> {_:Proof | eqprop x y}
+fromWitness :: x:a -> y:a -> EqualProp a {x} {y} -> {_:Proof | x = y}
 @-}
 fromWitness :: a -> a -> EqualityProp a -> Proof
 fromWitness x y pf = trivial
