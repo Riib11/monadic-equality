@@ -12,5 +12,6 @@ type Unit = ()
 it :: Unit
 it = ()
 
-instance EqSMT Unit where
-  eqSMT x y = x == y
+-- ? deprecated by change from eqprop to =
+-- instance EqSMT Unit where
+--   eqSMT x y = x == y
