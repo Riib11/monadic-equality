@@ -173,11 +173,6 @@ instance Concreteness a => Symmetry a where
   symmetry x y exy =
     reflexivity x ? concreteness x y exy
 
--- symmetry x y exy =
---   let e_x_y = concreteness x y exy
---       e_y_x = e_x_y -- by SMT
---    in fromSMT y x e_y_x
-
 instance (Symmetry b, Retractability a b) => Symmetry (a -> b) where
   symmetry f g efg =
     let efxgx = retractability f g efg
@@ -201,11 +196,6 @@ instance Concreteness a => Transitivity a where
       ? concreteness x y exy
       ? concreteness y z eyz
 
--- let e_x_y = concreteness x y exy
---     e_y_z = concreteness y z eyz
---     e_x_z = e_x_y &&& e_y_z -- by SMT
---  in reflexivity x -- fromSMT x z e_x_z
-
 instance (Transitivity b, Retractability a b) => Transitivity (a -> b) where
   transitivity f g h efg egh =
     let es_fx_gx = retractability f g efg
@@ -226,8 +216,8 @@ alphaEquivalency f =
     reflexivity (f y) ? apply (\x -> f x) y
 
 {-@
-betaEquivalencyTrivial :: Equality b => x:a -> y:b -> EqualProp b {y} {apply (\_:a -> y) x}
+etaEquivalency :: Equality b => x:a -> y:b -> EqualProp b {y} {apply (\_:a -> y) x}
 @-}
-betaEquivalencyTrivial :: Equality b => a -> b -> EqualityProp b
-betaEquivalencyTrivial x y =
+etaEquivalency :: Equality b => a -> b -> EqualityProp b
+etaEquivalency x y =
   reflexivity y ? apply (\_ -> y) x
