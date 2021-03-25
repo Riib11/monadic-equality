@@ -7,29 +7,6 @@ import Language.Haskell.Liquid.ProofCombinators
 # Propositional Equality
 -}
 
--- TODO: is the Axiomatic or GADT approach better?
-
--- ! Axiomatic approach
--- {-
--- ## Definition
--- -}
-
--- {-@
--- type EqualProp a X Y = {w:EqualityProp a | X = Y}
--- @-}
--- data EqualityProp a = EqualityProp
-
--- {-
--- ### Axioms
--- -}
-
--- {-@ assume
--- extensionality :: f:(a -> b) -> g:(a -> b) -> (x:a -> EqualProp b {f x} {g x}) -> EqualProp (a -> b) {f} {g}
--- @-}
--- extensionality :: (a -> b) -> (a -> b) -> (a -> EqualityProp b) -> EqualityProp (a -> b)
--- extensionality f g pf = EqualityProp
-
--- ! GADT approach
 {-
 ## Definition
 -}
@@ -37,58 +14,37 @@ import Language.Haskell.Liquid.ProofCombinators
 {-@
 type EqualProp a X Y = {w:EqualityProp a | X = Y}
 @-}
+data EqualityProp a = EqualityProp
 
-{-@
-data EqualityProp :: * -> * where
-    Reflexivity :: x:a -> EqualProp a {x} {x}
-  | Extensionality :: f:(a -> b) -> g:(a -> b) -> (x:a -> EqualProp b {f x} {g x}) -> EqualProp (a -> b) {f} {g}
-@-}
-data EqualityProp :: * -> * where
-  Reflexivity :: a -> EqualityProp a
-  Extensionality :: (a -> b) -> (a -> b) -> (a -> EqualityProp b) -> EqualityProp (a -> b)
+{-
+### Axioms
+-}
 
-{-@
+{-@ assume
 extensionality :: f:(a -> b) -> g:(a -> b) -> (x:a -> EqualProp b {f x} {g x}) -> EqualProp (a -> b) {f} {g}
 @-}
 extensionality :: (a -> b) -> (a -> b) -> (a -> EqualityProp b) -> EqualityProp (a -> b)
-extensionality f g pf = Extensionality f g pf
+extensionality f g pf = EqualityProp
 
 {-
-#### Previously-assumed axioms that are now derived
+### Substitution
 -}
-
--- ! Axiomatic approach impl
--- {-@
--- substitutability :: f:(a -> b) -> x:a -> y:a -> EqualProp a {x} {y} -> EqualProp b {f x} {f y}
--- @-}
--- substitutability :: (a -> b) -> a -> a -> EqualityProp a -> EqualityProp b
--- substitutability f x y pf = EqualityProp
 
 {-@
 substitutability :: f:(a -> b) -> x:a -> y:a -> EqualProp a {x} {y} -> EqualProp b {f x} {f y}
 @-}
 substitutability :: (a -> b) -> a -> a -> EqualityProp a -> EqualityProp b
-substitutability f x y pf = reflexivity (f x) ? f y ? pf
+substitutability f x y pf = EqualityProp
 
 {-
 ### Witnesses
 -}
 
--- ! Axiomatic approach impl
--- -- ? replaced fromSMT
--- {-@
--- toWitness :: x:a -> y:a -> {_:t | x = y} -> EqualProp a {x} {y}
--- @-}
--- toWitness :: a -> a -> t -> EqualityProp a
--- toWitness x y pf = EqualityProp
-
--- ! GADT approach impl
--- ? replaced fromSMT
 {-@
 toWitness :: x:a -> y:a -> {_:t | x = y} -> EqualProp a {x} {y}
 @-}
 toWitness :: a -> a -> t -> EqualityProp a
-toWitness x y pf = Reflexivity x ? pf
+toWitness x y pf = EqualityProp
 
 {-@
 fromWitness :: x:a -> y:a -> EqualProp a {x} {y} -> {_:Proof | x = y}
