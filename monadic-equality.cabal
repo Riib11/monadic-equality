@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 27297aa10b9cbab6ee48a742ae07fc57c157a9856e08db26b25820a14120f9b0
+-- hash: fdebd9eaf0de70a2eccec78c1cf4e7fc72c37f1a290285cf0af1b51037da4659
 
 name:           monadic-equality
 version:        0.1.0.0
@@ -32,9 +32,10 @@ library
       Data.Refined.Product
       Data.Refined.Unit
       Function
+      Function.Properties
       Relation.Equality.Prop
       Relation.Equality.Prop.Reasoning
-      Relation.Equality.Prop.Reasoning1
+      Relation.Equality.Prop.ReasoningOld
       Relation.Equality.PropBlind
   other-modules:
       Paths_monadic_equality
@@ -46,6 +47,7 @@ library
       liquid-base
     , liquid-prelude
     , liquidhaskell ==0.8.10.2
+    , template-haskell
   default-language: Haskell2010
 
 test-suite monadic-equality-test
@@ -70,4 +72,5 @@ test-suite monadic-equality-test
     , liquid-prelude
     , liquidhaskell ==0.8.10.2
     , monadic-equality
+    , template-haskell
   default-language: Haskell2010

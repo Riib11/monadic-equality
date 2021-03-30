@@ -113,8 +113,11 @@ class Concreteness a where
 instance EqSMT a => Concreteness a where
   concreteness x y pf = concreteness_EqSMT x y pf
 
+-- why is this needed??????? but it is....
+{-@ type Proof' = () @-}
+
 {-@ assume
-concreteness_EqSMT :: EqSMT a => x:a -> y:a -> EqualProp a {x} {y} -> {_:Proof | x = y}
+concreteness_EqSMT :: EqSMT a => x:a -> y:a -> EqualProp a {x} {y} -> {_:Proof' | x = y}
 @-}
 concreteness_EqSMT :: EqSMT a => a -> a -> EqualityProp a -> Proof
 concreteness_EqSMT _ _ _ = ()
