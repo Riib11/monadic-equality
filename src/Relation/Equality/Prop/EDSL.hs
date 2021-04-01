@@ -87,7 +87,7 @@ instance Lift Chain where
           [|symmetry ti tj eji|]
         ChainExpln_Rewrite s3 s4 expln -> do
           e34 <- reifyExpln s3 s4 expln
-          rewrite [|s3|] [|s4|] [|s34|] [|ti|]
+          rewrite [|s3|] [|s4|] [|e34|] [|ti|]
         ChainExpln_Extend x expln -> do
           undefined
         ChainExpln_Retract x expln -> do
@@ -260,7 +260,8 @@ rewrite xQ yQ exyQ eQ = do
       extractGuardExp :: (Guard, Exp) -> Q (Guard, Exp)
       extractGuardExp (grd, e) = (,) <$> extractGuard grd <*> extract e
   --
-  [|substitutability $(lamE [varP hole] (extract e)) $xQ $yQ $exyQ|]
+  f <- [|$(lamE [varP hole] (extract e))|]
+  [|(((substitutability (apply f) $xQ $yQ $exyQ) ? apply f $xQ) ? apply f $yQ)|]
 
 --
 --

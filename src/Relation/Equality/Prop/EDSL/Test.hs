@@ -2,13 +2,12 @@
 {-# LANGUAGE QuasiQuotes #-}
 {-# LANGUAGE TemplateHaskell #-}
 
--- {-@ LIQUID "--compile-spec" @-}
-
 module Relation.Equality.Prop.EDSL.Test where
 
 import Control.Applicative
 import Control.Monad
 import Data.List
+import Function
 import Language.Haskell.Liquid.ProofCombinators
 import Language.Haskell.Meta.Parse as MP
 import Language.Haskell.TH as TH
@@ -27,26 +26,43 @@ test ::
   EqualProp a {f x y} {f x' y'}
 @-}
 test :: Equality a => (a -> a -> a) -> a -> a -> EqualityProp a -> a -> a -> EqualityProp a -> EqualityProp a
-test f x x exx' y y' eyy' =
+test f x x' exx' y y' eyy' =
   [eqpropchain|
-    f x y 
+      f x y
     %eqprop
-    f x y' %by  
-      %rewrite x %-> x' %by 
-      exx'
+      f x' y
+        %by %rewrite x %to x'
+        %by exx'
     %eqprop
-    f x' y' %by
-      %rewrite y %-> y' %by 
-      eyy'
-    %eqprop
-    f x' y' 
-      %by 
-      %reflexivity
-    f x' y'
-      %by %symmetry %by
-      %reflexivity
+      f x' y'
+        %by %rewrite y %to y'
+        %by eyy'
   |]
-test =
-  [eqpropchain|
 
-  |]
+-- same as `test`, but with the generated code
+{-@
+test' ::
+  Equality a =>
+  f:(a -> a -> a) ->
+  x:a -> x':a -> EqualProp a {x} {x'} ->
+  y:a -> y':a -> EqualProp a {y} {y'} ->
+  EqualProp a {f x y} {f x' y'}
+@-}
+test' :: Equality a => (a -> a -> a) -> a -> a -> EqualityProp a -> a -> a -> EqualityProp a -> EqualityProp a
+test' f x x' exx' y y' eyy' =
+  transitivity
+    (f x y)
+    (f x' y)
+    (f x' y')
+    ( substitutability
+        (apply (\hole_0 -> f hole_0 y))
+        x
+        x'
+        exx'
+        ? apply (\hole_0 -> f hole_0 y) x
+        ? apply (\hole_0 -> f hole_0 y) x'
+    )
+    ( substitutability (apply (\hole_1 -> f x' hole_1)) y y' eyy'
+        ? apply (\hole_1 -> f x' hole_1) y
+        ? apply (\hole_1 -> f x' hole_1) y'
+    )
