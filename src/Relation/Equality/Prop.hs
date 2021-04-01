@@ -17,6 +17,8 @@ measure eqprop :: a -> a -> Bool
 
 data EqualityProp a = EqualityProp
 
+trivialProp = EqualityProp
+
 {-@
 type EqualProp a X Y = {w:EqualityProp a | eqprop X Y}
 @-}

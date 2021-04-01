@@ -10,7 +10,7 @@ import Relation.Equality.Prop
 -- [(a, Equality a)] -> a -> Equality a
 transitivity_chain :: [Q Exp] -> Q Exp -> Q Exp
 transitivity_chain [] x = [|reflexivity $x|]
-transitivity_chain [x_exy] y = [|transitivity $x $y $y $exy (reflexivity x')|]
+transitivity_chain [x_exy] y = [|transitivity $x $y $y $exy (reflexivity y)|]
   where
     x = [|fst $x_exy|]
     exy = [|snd $x_exy|]

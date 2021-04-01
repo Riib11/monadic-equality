@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: fdebd9eaf0de70a2eccec78c1cf4e7fc72c37f1a290285cf0af1b51037da4659
+-- hash: 8fc39dcf68c5469d0f45c9f30269fbd87f258037805fb57aca73763e2b9c1e95
 
 name:           monadic-equality
 version:        0.1.0.0
@@ -34,19 +34,23 @@ library
       Function
       Function.Properties
       Relation.Equality.Prop
+      Relation.Equality.Prop.EDSL
       Relation.Equality.Prop.Reasoning
       Relation.Equality.Prop.ReasoningOld
+      Relation.Equality.Prop.Rewriting
       Relation.Equality.PropBlind
   other-modules:
       Paths_monadic_equality
   hs-source-dirs:
       src
-  default-extensions: GADTs KindSignatures ExplicitForAll RankNTypes FlexibleInstances UndecidableInstances MultiParamTypeClasses ScopedTypeVariables
+  default-extensions: GADTs KindSignatures ExplicitForAll RankNTypes FlexibleInstances UndecidableInstances MultiParamTypeClasses ScopedTypeVariables LambdaCase
   ghc-options: -Wall -Wno-name-shadowing -Wno-unused-imports -Wno-unused-matches -Wno-unused-local-binds -Wno-orphans -fplugin=LiquidHaskell -fplugin-opt=LiquidHaskell:--reflection -fplugin-opt=LiquidHaskell:--ple-local -fplugin-opt=LiquidHaskell:--diff -fplugin-opt=LiquidHaskell:--short-names -fplugin-opt=LiquidHaskell:--prune-unsorted -fplugin-opt=LiquidHaskell:--rankNTypes
   build-depends:
-      liquid-base
+      haskell-src-meta
+    , liquid-base
     , liquid-prelude
     , liquidhaskell ==0.8.10.2
+    , parsec
     , template-haskell
   default-language: Haskell2010
 
@@ -68,9 +72,11 @@ test-suite monadic-equality-test
   default-extensions: GADTs KindSignatures ExplicitForAll RankNTypes FlexibleInstances UndecidableInstances MultiParamTypeClasses ScopedTypeVariables
   ghc-options: -fplugin=LiquidHaskell -fplugin-opt=LiquidHaskell:--reflection -fplugin-opt=LiquidHaskell:--ple-local -fplugin-opt=LiquidHaskell:--diff -fplugin-opt=LiquidHaskell:--short-names -fplugin-opt=LiquidHaskell:--prune-unsorted
   build-depends:
-      liquid-base
+      haskell-src-meta
+    , liquid-base
     , liquid-prelude
     , liquidhaskell ==0.8.10.2
     , monadic-equality
+    , parsec
     , template-haskell
   default-language: Haskell2010

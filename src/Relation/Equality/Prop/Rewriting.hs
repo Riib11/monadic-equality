@@ -2,27 +2,23 @@
 {-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE TupleSections #-}
 
-{-@ LIQUID "--max-case-expand=0" @-}
+{-@ LIQUID "--compile-spec" @-}
 
-module Relation.Equality.Prop.Substitution where
+module Relation.Equality.Prop.Rewriting where
 
 import Control.Monad
 import Language.Haskell.Liquid.ProofCombinators
 import Language.Haskell.TH
 import Relation.Equality.Prop
 
--- TODO: for some reason it takes a long time for LH to load this...
-
--- e:c -> x:a -> y:a -> EqualProp a {x} {y} -> EqualProp b {f x} {f y}
+-- x:a -> y:a -> EqualProp a {x} {y} -> e:c -> EqualProp b {f x} {f y}
 -- where f is extracted from e by abstracting out the appearances of x
-{-@ lazy substitute @-}
-substitute :: Q Exp -> Q Exp -> Q Exp -> Q Exp -> Q Exp
-substitute eQ xQ yQ exyQ = do
+rewrite :: Q Exp -> Q Exp -> Q Exp -> Q Exp -> Q Exp
+rewrite xQ yQ exyQ eQ = do
   x <- xQ
   e <- eQ
   hole <- newName "hole"
-  let {-@ lazy extract @-}
-      extract :: Exp -> Q Exp
+  let extract :: Exp -> Q Exp
       extract _e =
         if _e == x
           then varE hole
@@ -51,7 +47,6 @@ substitute eQ xQ yQ exyQ = do
             RecUpdE e ns_es -> RecUpdE <$> extract e <*> (traverse . traverse) extract ns_es
             StaticE e -> StaticE <$> extract e
             _ -> return _e
-      {-@ lazy extractStmt @-}
       extractStmt :: Stmt -> Q Stmt
       extractStmt = \case
         BindS pat e -> BindS pat <$> extract e
@@ -59,7 +54,6 @@ substitute eQ xQ yQ exyQ = do
         NoBindS e -> NoBindS <$> extract e
         ParS stmtss -> ParS <$> (traverse . traverse) extractStmt stmtss
         RecS stmts -> RecS <$> traverse extractStmt stmts
-      {-@ lazy extractDec @-}
       extractDec :: Dec -> Q Dec
       extractDec = \case
         FunD n clauses -> FunD n <$> traverse extractClause clauses
@@ -68,30 +62,24 @@ substitute eQ xQ yQ exyQ = do
         InstanceD overlap cxt ty decs -> InstanceD overlap cxt ty <$> traverse extractDec decs
         ImplicitParamBindD str e -> ImplicitParamBindD str <$> extract e
         dec -> return dec
-      {-@ lazy extractBody @-}
       extractBody :: Body -> Q Body
       extractBody = \case
         GuardedB grds_es -> GuardedB <$> traverse extractGuardExp grds_es
         NormalB e -> NormalB <$> extract e
-      {-@ lazy extractGuard @-}
       extractGuard :: Guard -> Q Guard
       extractGuard = \case
         NormalG e -> NormalG <$> extract e
         PatG stmts -> PatG <$> traverse extractStmt stmts
-      {-@ lazy extractRange @-}
       extractRange :: Range -> Q Range
       extractRange = \case
         FromR e -> FromR <$> extract e
         FromThenR e1 e2 -> FromThenR <$> extract e1 <*> extract e2
         FromToR e1 e2 -> FromToR <$> extract e1 <*> extract e2
         FromThenToR e1 e2 e3 -> FromThenToR <$> extract e1 <*> extract e2 <*> extract e3
-      {-@ lazy extractClause @-}
       extractClause :: Clause -> Q Clause
       extractClause (Clause pats bod decs) = Clause pats <$> extractBody bod <*> traverse extractDec decs
-      {-@ lazy extractMatch @-}
       extractMatch :: Match -> Q Match
       extractMatch (Match pat bod decs) = Match pat <$> extractBody bod <*> traverse extractDec decs
-      {-@ lazy extractGuardExp @-}
       extractGuardExp :: (Guard, Exp) -> Q (Guard, Exp)
       extractGuardExp (grd, e) = (,) <$> extractGuard grd <*> extract e
   --
