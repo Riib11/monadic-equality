@@ -41,7 +41,9 @@ library:
     - UndecidableInstances
     - MultiParamTypeClasses
     - ScopedTypeVariables
+    - MultiWayIf
     - LambdaCase
+    - TupleSections
   ghc-options:
     - -Wall
     - -Wno-name-shadowing

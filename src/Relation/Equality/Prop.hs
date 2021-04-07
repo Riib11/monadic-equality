@@ -1,5 +1,6 @@
 module Relation.Equality.Prop where
 
+import Data.Void (Void)
 import Function
 import Language.Haskell.Liquid.ProofCombinators
 
@@ -17,23 +18,20 @@ measure eqprop :: a -> a -> Bool
 
 data EqualityProp a = EqualityProp
 
-trivialProp = EqualityProp
-
 {-@
 type EqualProp a X Y = {w:EqualityProp a | eqprop X Y}
 @-}
 
+{-@
+type NEqualProp a X Y = EqualProp a {X} {Y} -> Void
+@-}
+
+trivialProp :: EqualityProp a
+trivialProp = EqualityProp
+
 {-
 ### Axioms
 -}
-
--- * redundant
-
--- {-@ assume
--- fromSMT :: x:a -> y:a -> {_:Proof | x = y} -> EqualProp a {x} {y}
--- @-}
--- fromSMT :: a -> a -> Proof -> EqualityProp a
--- fromSMT x y pf = EqualityProp
 
 {-@ assume
 reflexivity :: x:a -> EqualProp a {x} {x}
@@ -77,7 +75,7 @@ fromWitness x y pf = trivial
 ### Equality
 
 Combines together the equality properties:
-- reflexivity -- TODO: now axiomatized
+- reflexivity (axiom)
 - symmetry
 - transitivity
 - substitutability
@@ -115,11 +113,11 @@ class Concreteness a where
 instance EqSMT a => Concreteness a where
   concreteness x y pf = concreteness_EqSMT x y pf
 
--- why is this needed??????? but it is....
-{-@ type Proof' = () @-}
+-- ! why....
+{-@ type MyProof = () @-}
 
 {-@ assume
-concreteness_EqSMT :: EqSMT a => x:a -> y:a -> EqualProp a {x} {y} -> {_:Proof' | x = y}
+concreteness_EqSMT :: EqSMT a => x:a -> y:a -> EqualProp a {x} {y} -> {_:MyProof | x = y}
 @-}
 concreteness_EqSMT :: EqSMT a => a -> a -> EqualityProp a -> Proof
 concreteness_EqSMT _ _ _ = ()
@@ -138,30 +136,8 @@ class Retractability a b where
 instance Retractability a b where
   retractability f g efg x =
     substitutability (given x) f g efg
-      ? (given x f) -- instantiate `f x`
-      ? (given x g) -- instantiate `g x`
-
--- {-
--- ### Reflexivity
-
--- * redundant, since now axiomatized
-
--- -}
-
--- {-@
--- class Reflexivity a where
---   reflexivity :: x:a -> EqualProp a {x} {x}
--- @-}
--- class Reflexivity a where
---   reflexivity :: a -> EqualityProp a
-
--- instance Concreteness a => Reflexivity a where
---   reflexivity x = fromSMT x x trivial
-
--- instance Reflexivity b => Reflexivity (a -> b) where
---   reflexivity f =
---     let efxfx x = reflexivity (f x)
---      in extensionality f f efxfx
+      ? (given x (f)) -- instantiate `f x`
+      ? (given x (g)) -- instantiate `g x`
 
 {-
 ### Symmetry

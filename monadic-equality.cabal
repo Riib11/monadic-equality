@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 8fc39dcf68c5469d0f45c9f30269fbd87f258037805fb57aca73763e2b9c1e95
+-- hash: ecc956574e86f43b243e820139ad81f07245164388b069bd3365fe5c64d58f32
 
 name:           monadic-equality
 version:        0.1.0.0
@@ -32,18 +32,16 @@ library
       Data.Refined.Product
       Data.Refined.Unit
       Function
-      Function.Properties
       Relation.Equality.Prop
       Relation.Equality.Prop.EDSL
-      Relation.Equality.Prop.Reasoning
-      Relation.Equality.Prop.ReasoningOld
+      Relation.Equality.Prop.EDSL.Test
       Relation.Equality.Prop.Rewriting
       Relation.Equality.PropBlind
   other-modules:
       Paths_monadic_equality
   hs-source-dirs:
       src
-  default-extensions: GADTs KindSignatures ExplicitForAll RankNTypes FlexibleInstances UndecidableInstances MultiParamTypeClasses ScopedTypeVariables LambdaCase
+  default-extensions: GADTs KindSignatures ExplicitForAll RankNTypes FlexibleInstances UndecidableInstances MultiParamTypeClasses ScopedTypeVariables MultiWayIf LambdaCase TupleSections
   ghc-options: -Wall -Wno-name-shadowing -Wno-unused-imports -Wno-unused-matches -Wno-unused-local-binds -Wno-orphans -fplugin=LiquidHaskell -fplugin-opt=LiquidHaskell:--reflection -fplugin-opt=LiquidHaskell:--ple-local -fplugin-opt=LiquidHaskell:--diff -fplugin-opt=LiquidHaskell:--short-names -fplugin-opt=LiquidHaskell:--prune-unsorted -fplugin-opt=LiquidHaskell:--rankNTypes
   build-depends:
       haskell-src-meta
