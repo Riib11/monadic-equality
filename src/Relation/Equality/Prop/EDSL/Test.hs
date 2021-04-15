@@ -17,6 +17,31 @@ import Relation.Equality.Prop
 import Relation.Equality.Prop.EDSL
 import qualified Text.Parsec as P
 
+{-
+## V2
+-}
+
+{-@
+data Bit = B0 | B1
+@-}
+data Bit = B0 | B1
+
+{-@
+test_bit ::
+  EqualProp (Bit -> Bit)
+    {identity (\x:Bit -> x)}
+    {identity (\x:Bit -> x)}
+@-}
+test_bit :: EqualityProp (Bit -> Bit)
+test_bit =
+  extensionality
+    (identity (\x -> x))
+    (identity (\x -> x))
+    (\x -> reflexivity x ? identity (\x -> x) x)
+
+{-
+## V1
+
 {-@
 test ::
   Equality a =>
@@ -66,3 +91,4 @@ test' f x x' exx' y y' eyy' =
         ? apply (\hole_1 -> f x' hole_1) y
         ? apply (\hole_1 -> f x' hole_1) y'
     )
+-}
