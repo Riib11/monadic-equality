@@ -29,7 +29,7 @@ dependencies:
   - template-haskell
   - parsec 
   - haskell-src-meta
-  - singletons 
+  # - singletons 
 
 library:
   source-dirs: src
@@ -45,6 +45,8 @@ library:
     - MultiWayIf
     - LambdaCase
     - TupleSections
+    - ConstraintKinds
+    - FlexibleContexts
   ghc-options:
     - -Wall
     - -Wno-name-shadowing

@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: c27c0128f9ac2cb824c3392c0ad865583916faf7b09fbb3dbb15953b3221d4a6
+-- hash: a9381a5b561cdf537a424bc0002aa870145b34c47c14c14c7a63b27d75be8c32
 
 name:           monadic-equality
 version:        0.1.0.0
@@ -42,7 +42,7 @@ library
       Paths_monadic_equality
   hs-source-dirs:
       src
-  default-extensions: GADTs KindSignatures ExplicitForAll RankNTypes FlexibleInstances UndecidableInstances MultiParamTypeClasses ScopedTypeVariables MultiWayIf LambdaCase TupleSections
+  default-extensions: GADTs KindSignatures ExplicitForAll RankNTypes FlexibleInstances UndecidableInstances MultiParamTypeClasses ScopedTypeVariables MultiWayIf LambdaCase TupleSections ConstraintKinds FlexibleContexts
   ghc-options: -Wall -Wno-name-shadowing -Wno-unused-imports -Wno-unused-matches -Wno-unused-local-binds -Wno-orphans -fplugin=LiquidHaskell -fplugin-opt=LiquidHaskell:--reflection -fplugin-opt=LiquidHaskell:--ple-local -fplugin-opt=LiquidHaskell:--diff -fplugin-opt=LiquidHaskell:--short-names -fplugin-opt=LiquidHaskell:--prune-unsorted -fplugin-opt=LiquidHaskell:--rankNTypes
   build-depends:
       haskell-src-meta
@@ -50,7 +50,6 @@ library
     , liquid-prelude
     , liquidhaskell ==0.8.10.2
     , parsec
-    , singletons
     , template-haskell
   default-language: Haskell2010
 
@@ -78,6 +77,5 @@ test-suite monadic-equality-test
     , liquidhaskell ==0.8.10.2
     , monadic-equality
     , parsec
-    , singletons
     , template-haskell
   default-language: Haskell2010
