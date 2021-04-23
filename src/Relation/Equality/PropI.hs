@@ -19,6 +19,13 @@ type EqualProp S X Y = {_:Proof | eqp S X Y}
 @-}
 
 {-@ assume
+reflexivity :: sing:EqualPropSing a ->
+  x:a -> EqualProp {sing} {x} {x}
+@-}
+reflexivity :: EqualPropSing a -> a -> Proof
+reflexivity _ _ = ()
+
+{-@ assume
 extensionality :: sing_b:EqualPropSing b -> sing_a_to_b:EqualPropSing (a -> b) ->
   f:(a -> b) -> g:(a -> b) -> (x:a -> EqualProp {sing_b} {f x} {g x}) -> EqualProp {sing_a_to_b} {f} {g}
 @-}
@@ -83,17 +90,6 @@ concreteness_EqSMT :: EqSMT a => sing:EqualPropSing a ->
 @-}
 concreteness_EqSMT :: EqSMT a => EqualPropSing a -> a -> a -> Proof -> Proof
 concreteness_EqSMT _ _ _ _ = ()
-
-{-
-### Reflexivity
--}
-
-{-@ assume
-reflexivity :: sing:EqualPropSing a ->
-  x:a -> EqualProp {sing} {x} {x}
-@-}
-reflexivity :: EqualPropSing a -> a -> Proof
-reflexivity _ _ = ()
 
 {-
 ### Symmetry
